@@ -7,7 +7,7 @@ The Alerts.in.ua API Client is a Python library that provides a convenient way t
 To install the Alerts.in.ua API Client, run the following command in your terminal:
 
 ```bash
-pip install git+https://github.com/alerts-ua/alerts-in-ua-py.git
+pip install alerts-in-ua
 ```
 
 
