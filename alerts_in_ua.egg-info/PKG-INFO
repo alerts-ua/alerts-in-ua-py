@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: alerts-in-ua
+Version: 0.1.0
+Summary: Python library for alerts.in.ua API
+Home-page: https://github.com/alerts-ua/alerts-in-ua-py
+Author: Ukrzen Team
+Author-email: api@alerts.in.ua
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+License-File: LICENSE.txt
