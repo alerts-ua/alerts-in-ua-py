@@ -1,13 +1,63 @@
 Metadata-Version: 2.1
 Name: alerts-in-ua
-Version: 0.1.0
+Version: 0.1.4
 Summary: Python library for alerts.in.ua API
 Home-page: https://github.com/alerts-ua/alerts-in-ua-py
 Author: Ukrzen Team
 Author-email: api@alerts.in.ua
 Classifier: License :: OSI Approved :: MIT License
-Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.6
 Classifier: Programming Language :: Python :: 3.7
 Classifier: Programming Language :: Python :: 3.8
+Description-Content-Type: text/markdown
 License-File: LICENSE.txt
+
+# Introduction
+The Alerts.in.ua API Client is a Python library that provides a convenient way to access the alerts.in.ua API service. This service provides information about air raid alerts and other threats on a map of Ukraine.
+
+
+
+# Installation
+To install the Alerts.in.ua API Client, run the following command in your terminal:
+
+```bash
+pip install alerts-in-ua
+```
+
+
+
+# Usage
+
+⚠️ Before you can use this library, you need to obtain an API token by contacting api@alerts.in.ua.
+
+Here's an example of how to use the library to get a list of active alerts:
+
+Async:
+```python
+import asyncio
+from alerts_in_ua import AsyncClient
+
+async def main():
+    # Initialize the client with your token
+    alerts_client = AsyncClient(token="your_token")
+    
+    # Get the active alerts
+    active_alerts = await alerts_client.get_active_alerts()
+    print(active_alerts)
+
+# Run the asynchronous function
+asyncio.run(main())
+
+```
+or sync:
+```python
+
+from alerts_in_ua import Client
+alerts_client = Client(token="your_token")
+# Get the active alerts
+active_alerts = alerts_client.get_active_alerts()
+print(active_alerts)
+```
+
+# License
+MIT 2023
