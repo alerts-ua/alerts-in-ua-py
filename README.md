@@ -1,5 +1,5 @@
 # Introduction
-The Alerts.in.ua API Client is a Python library that provides a convenient way to access the alerts.in.ua API service. This service provides information about air raid alerts and other threats on a map of Ukraine.
+The Alerts.in.ua API Client is a Python library that simplifies access to the alerts.in.ua API service. This API provides real-time information about air raid alerts and other potential threats.
 
 
 
@@ -7,7 +7,7 @@ The Alerts.in.ua API Client is a Python library that provides a convenient way t
 To install the Alerts.in.ua API Client, run the following command in your terminal:
 
 ```bash
-pip install alerts-in-ua
+pip install git+https://github.com/alerts-ua/alerts-in-ua-py.git
 ```
 
 
@@ -37,9 +37,10 @@ asyncio.run(main())
 ```
 or sync:
 ```python
-
 from alerts_in_ua import Client
+
 alerts_client = Client(token="your_token")
+
 # Get the active alerts
 active_alerts = alerts_client.get_active_alerts()
 print(active_alerts)
