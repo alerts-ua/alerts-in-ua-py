@@ -37,9 +37,10 @@ asyncio.run(main())
 ```
 or sync:
 ```python
-
 from alerts_in_ua import Client
+
 alerts_client = Client(token="your_token")
+
 # Get the active alerts
 active_alerts = alerts_client.get_active_alerts()
 print(active_alerts)
