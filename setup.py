@@ -8,7 +8,7 @@ long_description = (here / 'README.md').read_text(encoding='utf-8')  # Get the l
 
 setup(
     name='alerts-in-ua',
-    version='0.1.4',
+    version='0.1.5',
     author='Ukrzen Team',
     author_email='api@alerts.in.ua',
     url='https://github.com/alerts-ua/alerts-in-ua-py',
