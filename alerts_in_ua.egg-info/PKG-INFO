@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alerts-in-ua
-Version: 0.1.6
+Version: 0.1.7
 Summary: Python library for alerts.in.ua API
 Home-page: https://github.com/alerts-ua/alerts-in-ua-py
 Author: Ukrzen Team

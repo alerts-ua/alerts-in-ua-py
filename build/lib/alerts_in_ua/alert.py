@@ -33,4 +33,4 @@ class Alert:
     def is_finished(self) -> bool:
         return self.finished_at is not None
     def __repr__(self):
-        return json.dumps(self, default=lambda o: o.__dict__, ensure_ascii=False)
+        return f"Alert({{'id': {self.id!r}, 'location_title': {self.location_title!r}, 'location_type': {self.location_type!r}, 'started_at': {self.started_at!r}, 'finished_at': {self.finished_at!r}, 'updated_at': {self.updated_at!r}, 'alert_type': {self.alert_type!r}, 'location_uid': {self.location_uid!r}, 'location_oblast': {self.location_oblast!r}, 'location_raion': {self.location_raion!r}, 'notes': {self.notes!r}, 'calculated': {self.calculated!r}}}"
