@@ -8,7 +8,7 @@ long_description = (here / 'README.md').read_text(encoding='utf-8')  # Get the l
 
 setup(
     name='alerts-in-ua',
-    version='0.1.5',
+    version='0.1.6',
     author='Ukrzen Team',
     author_email='api@alerts.in.ua',
     url='https://github.com/alerts-ua/alerts-in-ua-py',
@@ -17,7 +17,7 @@ setup(
     long_description_content_type="text/markdown",
     packages=find_packages(),
     install_requires=[
-        'aiohttp', 'requests'
+        'aiohttp', 'requests','pytz'
     ],
     classifiers=[
         'License :: OSI Approved :: MIT License',
