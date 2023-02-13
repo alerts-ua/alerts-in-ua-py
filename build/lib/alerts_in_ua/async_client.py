@@ -1,6 +1,7 @@
 import aiohttp
 from .errors import UnauthorizedError, RateLimitError, InternalServerError
 from .alert import Alert
+from .alerts import Alerts
 class AsyncClient:
     REQUEST_TIMEOUT = 5
     API_BASE_URL = "https://api.alerts.in.ua"
@@ -74,5 +75,4 @@ class AsyncClient:
 
     async def get_active_alerts(self, use_cache=True):
         data = await self._request("alerts/active.json", use_cache=use_cache)
-        alerts = [Alert(alert) for alert in data.get('alerts')]
-        return alerts
+        return Alerts(data)
