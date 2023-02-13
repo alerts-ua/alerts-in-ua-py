@@ -1,5 +1,5 @@
 # Introduction
-The Alerts.in.ua API Client is a Python library that simplifies access to the alerts.in.ua API service. This API provides real-time information about air raid alerts and other potential threats.
+The Alerts.in.ua API Client is a Python library that simplifies access to the alerts.in.ua API service. It provides real-time information about air raid alerts and other potential threats.
 
 
 
