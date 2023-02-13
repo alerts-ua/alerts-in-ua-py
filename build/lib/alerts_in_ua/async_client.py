@@ -2,6 +2,8 @@ import aiohttp
 from .errors import UnauthorizedError, RateLimitError, InternalServerError
 from .alert import Alert
 from .alerts import Alerts
+from .user_agent import UserAgent
+
 class AsyncClient:
     REQUEST_TIMEOUT = 5
     API_BASE_URL = "https://api.alerts.in.ua"
@@ -13,6 +15,7 @@ class AsyncClient:
         self.headers = {
             "Accept": "application/json",
             "Authorization": f"Bearer {self.token}",
+            "User-Agent": UserAgent.get_user_agent()
         }
         self.cache = {}
 

@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-
+from alerts_in_ua import __version__
 import pathlib
 import re
 
@@ -8,7 +8,7 @@ long_description = (here / 'README.md').read_text(encoding='utf-8')  # Get the l
 
 setup(
     name='alerts-in-ua',
-    version='0.2.0',
+    version=__version__,
     author='Ukrzen Team',
     author_email='api@alerts.in.ua',
     url='https://github.com/alerts-ua/alerts-in-ua-py',
