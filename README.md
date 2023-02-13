@@ -49,7 +49,10 @@ print(active_alerts)
 
 # Alerts 
 
-`get_active_alerts()` returns Alerts a collection of alerts and provides various methods to filter and access these alerts.
+Alerts class is a collection of alerts and provides various methods to filter and access these alerts.
+
+When user call `client.get_active_alerts()` it returns `Alerts` class.
+## Methods
 
 ### filter(*args: str) -> List[Alert]
 This method filters the alerts based on the given parameters.
@@ -59,27 +62,40 @@ filtered_alerts = active_alerts.filter('location_oblast', 'Донецька об
 ```
 In this example, filtered_alerts will contain all the air raid alerts that have the location oblast as 'Донецька область'.
 
+### get_alerts_by_location_title(location_title: str) -> List[Alert]
+This method returns all the alerts from specified location.
+
+```python
+kyiv_alerts = active_alerts.get_alerts_by_location_title('м. Київ')
+```
+
+### get_air_raid_alerts() -> List[Alert]
+This method returns all the alerts that are of alert type 'air_raid'.
+```python 
+air_raid_alerts = active_alerts.get_air_raid_alerts()
+```
+
 ### get_oblast_alerts() -> List[Alert]
-This method returns all the alerts that are of alert type 'oblast'.
+This method returns all the alerts that are of location type 'oblast'.
 
 ```python
 oblast_alerts = active_alerts.get_oblast_alerts()
 ```
 
 ### get_raion_alerts() -> List[Alert]
-This method returns all the alerts that are of alert type 'raion'.
+This method returns all the alerts that are of location type 'raion'.
 ```python
 raion_alerts = active_alerts.get_raion_alerts()
 ```
 
 ### get_hromada_alerts() -> List[Alert]
-This method returns all the alerts that are of alert type 'hromada'.
+This method returns all the alerts that are of location type 'hromada'.
 ```python
 hromada_alerts = active_alerts.get_hromada_alerts()
 ```
 
 ### get_city_alerts() -> List[Alert]
-This method returns all the alerts that are of alert type 'city'.
+This method returns all the alerts that are of location type 'city'.
 
 ```python
 city_alerts = active_alerts.get_city_alerts()
@@ -96,13 +112,7 @@ artillery_shelling_alerts = active_alerts.get_alerts_by_alert_type('artillery_sh
 This method returns all the alerts that are of the given location type.
 
 ```python
-urban_location_alerts = active_alerts.get_alerts_by_location_type('urban_fights')
-```
-### get_alerts_by_location_title(location_title: str) -> List[Alert]
-This method returns all the alerts from specified location.
-
-```python
-kyiv_alerts = active_alerts.get_alerts_by_location_title('м. Київ')
+urban_location_alerts = active_alerts.get_alerts_by_location_type('raion')
 ```
 
 ### get_alerts_by_oblast(oblast_title: str) -> List[Alert]
@@ -116,12 +126,6 @@ donetsk_oblast_alerts = active_alerts.get_alerts_by_oblast('Донецька о�
 This method returns all the alerts that have the given location uid.
 ```python
 location_uid_alerts = active_alerts.get_alerts_by_location_uid('123456')
-```
-
-### get_air_raid_alerts() -> List[Alert]
-This method returns all the alerts that are of alert type 'air_raid'.
-```python 
-air_raid_alerts = active_alerts.get_air_raid_alerts()
 ```
 
 ### get_artillery_shelling_alerts() -> List[Alert]
