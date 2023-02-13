@@ -32,6 +32,9 @@ class Alerts:
     def get_alerts_by_alert_type(self, alert_type: str) -> List[Alert]:
         return self.filter('alert_type',alert_type)
 
+    def get_alerts_by_location_title(self, location_title: str) -> List[Alert]:
+        return self.filter('location_title',location_title)
+
     def get_alerts_by_location_type(self, location_type: str) -> List[Alert]:
         return self.filter('location_type',location_type)
 

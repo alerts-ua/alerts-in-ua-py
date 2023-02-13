@@ -98,6 +98,12 @@ This method returns all the alerts that are of the given location type.
 ```python
 urban_location_alerts = active_alerts.get_alerts_by_location_type('urban_fights')
 ```
+### get_alerts_by_location_title(location_title: str) -> List[Alert]
+This method returns all the alerts from specified location.
+
+```python
+kyiv_alerts = active_alerts.get_alerts_by_location_title('м. Київ')
+```
 
 ### get_alerts_by_oblast(oblast_title: str) -> List[Alert]
 This method returns all the alerts that are of the given oblast title.
@@ -149,7 +155,7 @@ all_alerts = active_alerts.get_all_alerts()
 ```
 or you can use shortcut:
 ```python 
-for alert in active_alerts.get_all_alerts():
+for alert in active_alerts:
     print(alert)
 ```
 ### get_last_updated_at() -> datetime.datetime
