@@ -11,3 +11,6 @@ class RateLimitError(ApiError):
 
 class InternalServerError(ApiError):
     pass
+
+class ForbiddenError(ApiError):
+    pass

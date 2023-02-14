@@ -1,5 +1,5 @@
 import aiohttp
-from .errors import UnauthorizedError, RateLimitError, InternalServerError
+from .errors import UnauthorizedError, RateLimitError, InternalServerError, ForbiddenError
 from .alert import Alert
 from .alerts import Alerts
 from .user_agent import UserAgent
