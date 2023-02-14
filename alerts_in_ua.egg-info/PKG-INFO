@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: alerts-in-ua
-Version: 0.2.3
+Version: 0.2.4
 Summary: Python library for alerts.in.ua API
 Home-page: https://github.com/alerts-ua/alerts-in-ua-py
 Author: Ukrzen Team
@@ -39,7 +39,7 @@ from alerts_in_ua import AsyncClient as AsyncAlertsClient
 
 async def main():
     # Initialize the client with your token
-    alerts_client = AsyncClient(token="your_token")
+    alerts_client = AsyncAlertsClient(token="your_token")
     
     # Get the active alerts
     active_alerts = await alerts_client.get_active_alerts()
@@ -54,7 +54,7 @@ or sync:
 ```python
 from alerts_in_ua import Client as AlertsClient
 
-alerts_client = Client(token="your_token")
+alerts_client = AlertsClient(token="your_token")
 
 # Get the active alerts
 active_alerts = alerts_client.get_active_alerts()
@@ -72,7 +72,7 @@ When user call `client.get_active_alerts()` it returns `Alerts` class.
 This method filters the alerts based on the given parameters.
 
 ```python
-filtered_alerts = active_alerts.filter('location_oblast', 'Донецька область','alert_type','air_raid)
+filtered_alerts = active_alerts.filter('location_oblast', 'Донецька область','alert_type','air_raid')
 ```
 In this example, filtered_alerts will contain all the air raid alerts that have the location oblast as 'Донецька область'.
 
