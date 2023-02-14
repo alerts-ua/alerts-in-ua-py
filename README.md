@@ -58,7 +58,7 @@ When user call `client.get_active_alerts()` it returns `Alerts` class.
 This method filters the alerts based on the given parameters.
 
 ```python
-filtered_alerts = active_alerts.filter('location_oblast', 'Донецька область','alert_type','air_raid)
+filtered_alerts = active_alerts.filter('location_oblast', 'Донецька область','alert_type','air_raid')
 ```
 In this example, filtered_alerts will contain all the air raid alerts that have the location oblast as 'Донецька область'.
 
