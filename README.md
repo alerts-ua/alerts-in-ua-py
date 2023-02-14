@@ -25,7 +25,7 @@ from alerts_in_ua import AsyncClient as AsyncAlertsClient
 
 async def main():
     # Initialize the client with your token
-    alerts_client = AsyncClient(token="your_token")
+    alerts_client = AsyncAlertsClient(token="your_token")
     
     # Get the active alerts
     active_alerts = await alerts_client.get_active_alerts()
@@ -40,7 +40,7 @@ or sync:
 ```python
 from alerts_in_ua import Client as AlertsClient
 
-alerts_client = Client(token="your_token")
+alerts_client = AlertsClient(token="your_token")
 
 # Get the active alerts
 active_alerts = alerts_client.get_active_alerts()
