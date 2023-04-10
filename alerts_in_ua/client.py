@@ -1,9 +1,10 @@
 import requests
-from .errors import UnauthorizedError, RateLimitError, InternalServerError, ForbiddenError
+from .errors import UnauthorizedError, RateLimitError, InternalServerError, ForbiddenError, ApiError
 from .alert import Alert
 from .alerts import Alerts
 from .user_agent import UserAgent
 from typing import List, Dict, Union
+from .air_raid_alert_oblast_statuses import AirRaidAlertOblastStatuses
 
 class Client:
     REQUEST_TIMEOUT = 5
@@ -78,3 +79,6 @@ class Client:
     def get_active_alerts(self, use_cache=True) -> Alerts:
         data = self._request("alerts/active.json", use_cache=use_cache)
         return Alerts(data)
+    def get_air_raid_alert_statuses_by_oblast(self, oblast_level_only=False, use_cache=True) -> AirRaidAlertOblastStatuses:
+        data = self._request("iot/active_air_raid_alerts_by_oblast.json", use_cache=use_cache)
+        return AirRaidAlertOblastStatuses(data,oblast_level_only=oblast_level_only)

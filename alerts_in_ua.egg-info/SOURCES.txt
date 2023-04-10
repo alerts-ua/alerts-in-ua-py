@@ -2,6 +2,8 @@ LICENSE.txt
 README.md
 setup.py
 alerts_in_ua/__init__.py
+alerts_in_ua/air_raid_alert_oblast_status.py
+alerts_in_ua/air_raid_alert_oblast_statuses.py
 alerts_in_ua/alert.py
 alerts_in_ua/alerts.py
 alerts_in_ua/async_client.py

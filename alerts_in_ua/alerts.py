@@ -41,6 +41,9 @@ class Alerts:
     def get_alerts_by_oblast(self, oblast_title: str) -> List[Alert]:
         return self.filter('location_oblast',oblast_title)
 
+    def get_alerts_by_oblast_uid(self, oblast_uid: str) -> List[Alert]:
+        return self.filter('location_oblast_uid',oblast_uid)
+
     def get_alerts_by_location_uid(self, location_uid: str) -> List[Alert]:
         return self.filter('location_uid',location_uid)
 

@@ -1,9 +1,9 @@
 import aiohttp
-from .errors import UnauthorizedError, RateLimitError, InternalServerError, ForbiddenError
+from .errors import UnauthorizedError, RateLimitError, InternalServerError, ForbiddenError, ApiError
 from .alert import Alert
 from .alerts import Alerts
 from .user_agent import UserAgent
-
+from .air_raid_alert_oblast_statuses import AirRaidAlertOblastStatuses
 class AsyncClient:
     REQUEST_TIMEOUT = 5
     API_BASE_URL = "https://api.alerts.in.ua"
@@ -76,6 +76,9 @@ class AsyncClient:
                 else:
                     raise ApiError(f"Unknown error. HTTP Code:{response.status}")
 
-    async def get_active_alerts(self, use_cache=True):
+    async def get_active_alerts(self, use_cache=True) -> Alerts:
         data = await self._request("alerts/active.json", use_cache=use_cache)
         return Alerts(data)
+    async def get_air_raid_alert_statuses_by_oblast(self, oblast_level_only=False, use_cache=True) -> AirRaidAlertOblastStatuses:
+        data = await self._request("iot/active_air_raid_alerts_by_oblast.json", use_cache=use_cache)
+        return AirRaidAlertOblastStatuses(data,oblast_level_only=oblast_level_only)
