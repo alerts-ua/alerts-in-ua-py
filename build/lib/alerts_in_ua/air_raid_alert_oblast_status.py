@@ -1,7 +1,9 @@
 class AirRaidAlertOblastStatus:
-    def __init__(self, location_title: str, status: str):
-        if status not in ['partly', 'active', 'no_alert']:
-           raise ValueError("Invalid status")
+    STATUS_MAP = {'A': 'active', 'P': 'partly', 'N': 'no_alert'}
+    def __init__(self, location_title: str, status: str, oblast_level_only: bool = False):
+        status = self.STATUS_MAP.get(status, 'no_alert')
+        if status == 'partly' and oblast_level_only:
+            status = 'no_alert'
         self.status = status
         self.location_title = location_title
 
@@ -26,4 +28,4 @@ class AirRaidAlertOblastStatus:
             return f"🟢 {self.location_title}"
 
     def __str__(self) -> str:
-        return f"{self.status}{self.location_title}"
+        return f"{self.status}:{self.location_title}"

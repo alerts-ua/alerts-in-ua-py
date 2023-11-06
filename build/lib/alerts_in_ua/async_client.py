@@ -1,9 +1,12 @@
 import aiohttp
-from .errors import UnauthorizedError, RateLimitError, InternalServerError, ForbiddenError, ApiError
+from .errors import UnauthorizedError, RateLimitError, InternalServerError, ForbiddenError, ApiError,InvalidParameterException
 from .alert import Alert
 from .alerts import Alerts
 from .user_agent import UserAgent
 from .air_raid_alert_oblast_statuses import AirRaidAlertOblastStatuses
+from .air_raid_alert_oblast_status import AirRaidAlertOblastStatus
+from typing import List, Dict, Union
+from .location_uid_resolver import LocationUidResolver
 class AsyncClient:
     REQUEST_TIMEOUT = 5
     API_BASE_URL = "https://api.alerts.in.ua"
@@ -11,6 +14,7 @@ class AsyncClient:
     def __init__(self, token: str):
         self.token = token
         self.base_url = "/v1/"
+        self.location_uid_resolver = LocationUidResolver()
 
         self.headers = {
             "Accept": "application/json",
@@ -79,6 +83,31 @@ class AsyncClient:
     async def get_active_alerts(self, use_cache=True) -> Alerts:
         data = await self._request("alerts/active.json", use_cache=use_cache)
         return Alerts(data)
+
+    async def get_alerts_history(self, oblast_uid_or_location_title: Union[int, str], period: str = 'month_ago', use_cache: bool = True) -> Alerts:
+        if isinstance(oblast_uid_or_location_title, str):
+           if oblast_uid_or_location_title.isdigit():
+              oblast_uid = int(oblast_uid_or_location_title)
+           else:
+              oblast_uid = self.location_uid_resolver.resolve_uid(oblast_uid_or_location_title)
+        else:
+            oblast_uid = oblast_uid_or_location_title
+        url = f"regions/{oblast_uid}/alerts/{period}.json"
+        data = await self._request(url, use_cache=use_cache)
+        return Alerts(data)
+
+
+    async def get_air_raid_alert_status(self, oblast_uid_or_location_title: Union[int, str], oblast_level_only=False, use_cache=True) -> AirRaidAlertOblastStatus:
+        if isinstance(oblast_uid_or_location_title, str):
+           if oblast_uid_or_location_title.isdigit():
+              oblast_uid = int(oblast_uid_or_location_title)
+           else:
+              oblast_uid = self.location_uid_resolver.resolve_uid(oblast_uid_or_location_title)
+        else:
+            oblast_uid = oblast_uid_or_location_title
+        data = await self._request(f"iot/active_air_raid_alerts/{oblast_uid}.json", use_cache=use_cache)
+        return AirRaidAlertOblastStatus(location_title = self.location_uid_resolver.resolve_location_title(oblast_uid),status=data,oblast_level_only=oblast_level_only)
+
     async def get_air_raid_alert_statuses_by_oblast(self, oblast_level_only=False, use_cache=True) -> AirRaidAlertOblastStatuses:
         data = await self._request("iot/active_air_raid_alerts_by_oblast.json", use_cache=use_cache)
         return AirRaidAlertOblastStatuses(data,oblast_level_only=oblast_level_only)

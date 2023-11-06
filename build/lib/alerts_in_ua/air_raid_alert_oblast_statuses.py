@@ -1,7 +1,6 @@
 from typing import List
 from .air_raid_alert_oblast_status import AirRaidAlertOblastStatus
 class AirRaidAlertOblastStatuses:
-     STATUS_MAP = {'A': 'active', 'P': 'partly', 'N': 'no_alert'}
      LOCATIONS = [
             "Автономна Республіка Крим",
             "Волинська область",
@@ -36,10 +35,8 @@ class AirRaidAlertOblastStatuses:
      def __init__(self, data: str, oblast_level_only: bool = False):
         self.oblast_statuses = []
         for i, location in enumerate(self.LOCATIONS):
-            status = self.STATUS_MAP.get(data[i], 'no_alert')
-            if status == 'partly' and oblast_level_only:
-                status = 'no_alert'
-            self.oblast_statuses.append(AirRaidAlertOblastStatus(location, status))
+            status = data[i]
+            self.oblast_statuses.append(AirRaidAlertOblastStatus(location, status,oblast_level_only=oblast_level_only))
 
      def filter_by_status(self, status):
         return [oblast_status for oblast_status in self.oblast_statuses if oblast_status.status == status]

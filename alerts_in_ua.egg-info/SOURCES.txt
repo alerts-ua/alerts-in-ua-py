@@ -9,6 +9,7 @@ alerts_in_ua/alerts.py
 alerts_in_ua/async_client.py
 alerts_in_ua/client.py
 alerts_in_ua/errors.py
+alerts_in_ua/location_uid_resolver.py
 alerts_in_ua/ua_date_parser.py
 alerts_in_ua/user_agent.py
 alerts_in_ua.egg-info/PKG-INFO

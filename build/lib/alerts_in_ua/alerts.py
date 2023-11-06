@@ -76,3 +76,6 @@ class Alerts:
 
     def __repr__(self) -> str:
         return str(self.alerts)
+
+    def __len__(self) -> int:
+        return len(self.alerts)
