@@ -14,3 +14,6 @@ class InternalServerError(ApiError):
 
 class ForbiddenError(ApiError):
     pass
+
+class InvalidParameterException(Exception):
+    pass
