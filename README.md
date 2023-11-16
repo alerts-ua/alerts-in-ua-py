@@ -14,7 +14,7 @@ pip install alerts_in_ua
 
 # Usage
 
-⚠️ Before you can use this library, you need to obtain an API token by contacting api@alerts.in.ua.
+⚠️ Before you can use this library, you need to obtain an API token by submitting an [API request form](https://alerts.in.ua/api-request).
 
 Here's an basic example of how to use the library to get a list of active alerts:
 
