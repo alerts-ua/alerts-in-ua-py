@@ -2,4 +2,3 @@
 .idea
 __pycache__
 example.py
-tests/*
