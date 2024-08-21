@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
-from typing_extensions import Optional, TypedDict, Unpack
-from pydantic import BaseModel, field_validator
 
-from alerts_in_ua_.ua_date_parser import parse_ua_date
+from pydantic import BaseModel, field_validator
+from typing_extensions import Optional, TypedDict, Unpack, Any
+
+from alerts_in_ua_.ua_date_parser import parse_ua_date, ALERT_DATE_TIME_FORMAT
 
 
 class LocationType(str, Enum):
@@ -23,10 +24,11 @@ class AlertType(str, Enum):
     UNKNOWN = 'unknown'
 
 
-class AlertShortInfo(str, Enum):
-    ALERT = 'A'
-    PARTIAL = 'P'
-    NONE = 'N'
+class AirRaidStatus(str, Enum):
+    ACTIVE = 'A'
+    PARTLY = 'P'
+    NO_ALERT = 'N'
+    UNKNOWN = 'unknown'
 
 
 class AlertDetailsDict(TypedDict, total=False):
@@ -89,36 +91,55 @@ class AlertDetails(BaseModel, frozen=True):
     def __init__(self, /, **data: Unpack[AlertDetailsDict]):
         super().__init__(**data)
 
+    def __str__(self) -> str:
+        attrs = ', '.join([f"{k}={v}" for k, v in self.__dict__.items()])
+        return f"A({attrs})"
+
+    @property
+    def is_finished(self) -> bool:
+        return self.finished_at is not None
+
+    @property
+    def duration(self) -> Optional[timedelta]:
+        if self.started_at:
+            if self.finished_at:
+                return self.finished_at - self.started_at
+            else:
+                if now_datetime := parse_ua_date(
+                        datetime.now().strftime(ALERT_DATE_TIME_FORMAT)):
+                    return now_datetime - self.started_at
+        return None
+
     @field_validator('started_at', 'finished_at', 'updated_at', mode='before')
     @classmethod
-    def parse_datetime(cls, value) -> Optional[datetime]:
+    def parse_datetime(cls, value: Any) -> Optional[datetime]:
         if isinstance(value, str):
             return parse_ua_date(value)
         return value
 
     @field_validator('location_type', mode='before')
     @classmethod
-    def parse_location_type(cls, value) -> Optional[LocationType]:
+    def parse_location_type(cls, value: Any) -> Optional[LocationType]:
         if isinstance(value, str):
-            return LocationType(value)
+            return (LocationType(value)
+                    if value in LocationType.__members__.values()
+                    else LocationType.UNKNOWN)
         return value
 
     @field_validator('alert_type', mode='before')
     @classmethod
-    def parse_alert_type(cls, value) -> Optional[AlertType]:
+    def parse_alert_type(cls, value: Any) -> Optional[AlertType]:
         if isinstance(value, str):
-            return AlertType(value)
+            return (AlertType(value)
+                    if value in AlertType.__members__.values()
+                    else AlertType.UNKNOWN)
         return value
-
-    @property
-    def is_finished(self) -> bool:
-        return self.finished_at is not None
 
 
 __all__ = (
     'AlertType',
     'LocationType',
-    'AlertShortInfo',
+    'AirRaidStatus',
     'AlertDetailsDict',
     'AlertDetails',
 )

@@ -7,12 +7,12 @@ here = pathlib.Path(__file__).parent.resolve()  # current path
 long_description = (here / 'README.md').read_text(encoding='utf-8')  # Get the long description from the README file
 
 setup(
-    name='alerts-in-ua',
+    name='alerts_details-in-ua',
     version=__version__,
     author='Ukrzen Team',
-    author_email='api@alerts.in.ua',
+    author_email='api@alerts_details.in.ua',
     url='https://github.com/alerts-ua/alerts-in-ua-py',
-    description='Python library for alerts.in.ua API',
+    description='Python library for alerts_details.in.ua API',
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(),

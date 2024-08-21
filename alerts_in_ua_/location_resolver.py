@@ -1,50 +1,88 @@
-from typing_extensions import Dict, Union, Optional
+"""
+FIXME:
+     Using a class definition is an overhead for desired functionality
+"""
+
+from typing_extensions import Dict, Union
 
 
-class LocationUidResolver:
-    UID_TO_LOCATION: Dict[int, str] = {
-        3: "Хмельницька область",
-        4: "Вінницька область",
-        5: "Рівненська область",
-        8: "Волинська область",
-        9: "Дніпропетровська область",
-        10: "Житомирська область",
-        11: "Закарпатська область",
-        12: "Запорізька область",
-        13: "Івано-Франківська область",
-        14: "Київська область",
-        15: "Кіровоградська область",
-        16: "Луганська область",
-        17: "Миколаївська область",
-        18: "Одеська область",
-        19: "Полтавська область",
-        20: "Сумська область",
-        21: "Тернопільська область",
-        22: "Харківська область",
-        23: "Херсонська область",
-        24: "Черкаська область",
-        25: "Чернігівська область",
-        26: "Чернівецька область",
-        27: "Львівська область",
-        28: "Донецька область",
-        29: "Автономна Республіка Крим",
-        30: "м. Севастополь",
-        31: "м. Київ"
-    }
-    # Inverse mapping from location to UID
-    LOCATION_TO_UID: Dict[str, Union[int, str]] = dict(
-        zip(UID_TO_LOCATION.values(), UID_TO_LOCATION.keys())
-    )
+AIR_RAID_STATE_LOCATIONS_ORDERED = [
+    "Автономна Республіка Крим",
+    "Волинська область",
+    "Вінницька область",
+    "Дніпропетровська область",
+    "Донецька область",
+    "Житомирська область",
+    "Закарпатська область",
+    "Запорізька область",
+    "Івано-Франківська область",
+    "м. Київ",
+    "Київська область",
+    "Кіровоградська область",
+    "Луганська область",
+    "Львівська область",
+    "Миколаївська область",
+    "Одеська область",
+    "Полтавська область",
+    "Рівненська область",
+    "м. Севастополь",
+    "Сумська область",
+    "Тернопільська область",
+    "Харківська область",
+    "Херсонська область",
+    "Хмельницька область",
+    "Черкаська область",
+    "Чернівецька область",
+    "Чернігівська область"
+]
 
-    @classmethod
-    def resolve_uid(cls, title: str):
-        """Resolve location to UID."""
-        return cls.LOCATION_TO_UID.get(str(title), f"Unknown UID for {title=}")
+UID_TO_LOCATION: Dict[int, str] = {
+    3: "Хмельницька область",
+    4: "Вінницька область",
+    5: "Рівненська область",
+    8: "Волинська область",
+    9: "Дніпропетровська область",
+    10: "Житомирська область",
+    11: "Закарпатська область",
+    12: "Запорізька область",
+    13: "Івано-Франківська область",
+    14: "Київська область",
+    15: "Кіровоградська область",
+    16: "Луганська область",
+    17: "Миколаївська область",
+    18: "Одеська область",
+    19: "Полтавська область",
+    20: "Сумська область",
+    21: "Тернопільська область",
+    22: "Харківська область",
+    23: "Херсонська область",
+    24: "Черкаська область",
+    25: "Чернігівська область",
+    26: "Чернівецька область",
+    27: "Львівська область",
+    28: "Донецька область",
+    29: "Автономна Республіка Крим",
+    30: "м. Севастополь",
+    31: "м. Київ"
+}
+# Inverse mapping from location to UID
+LOCATION_TO_UID: Dict[str, Union[int, str]] = dict(
+    zip(UID_TO_LOCATION.values(), UID_TO_LOCATION.keys())
+)
 
-    @classmethod
-    def resolve_title(cls, uid: int):
-        """Resolve UID to location."""
-        return cls.UID_TO_LOCATION.get(int(uid), f"Unknown location for uid {uid=}")
+
+def resolve_uid(title: str):
+    """Resolve location to UID."""
+    return LOCATION_TO_UID.get(str(title), f"Unknown UID for {title=}")
 
 
-__all__ = ('LocationUidResolver',)
+def resolve_title(uid: int):
+    """Resolve UID to location."""
+    return UID_TO_LOCATION.get(int(uid), f"Unknown location for uid {uid=}")
+
+
+__all__ = (
+    'resolve_uid',
+    'resolve_title',
+    'AIR_RAID_STATE_LOCATIONS_ORDERED'
+)
