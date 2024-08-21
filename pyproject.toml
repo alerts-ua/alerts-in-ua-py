@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "alerts-in-ua"
+
+authors = [
+    { name="Ukrzen Team", email="api@alerts_details.in.ua"},
+    { name="o-murphy", email="thehelixpg@gmail.com" }
+]
+
+description = "Python library for alerts_details.in.ua API"
+readme = 'README.md'
+requires-python = ">=3.8"
+keywords = ['air raid', 'alerts', 'alerts-in-ua']
+license = {file = "LICENSE"}
+
+classifiers = [
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Python",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+
+dependencies = [
+    "aiohttp",
+    "requests",
+    "pytz",
+    "typing_extensions",
+    "pydantic",
+]
+dynamic = ["version"]
+
+[tool.setuptools.dynamic]
+version = {attr = "alerts_in_ua.__version__"}
+
+[project.urls]
+"Homepage" = "https://github.com/alerts-ua/alerts-in-ua-py"
+"Bug Reports" = "https://github.com/alerts-ua/alerts-in-ua-py/issues"
+"Source" = "https://github.com/alerts-ua/alerts-in-ua-py"
+
+[tool.setuptools]
+py-modules = ["alerts_in_ua"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["alerts_in_ua*"]
+
+[project.optional-dependencies]
+dev = ["mypy", "pytest", 'build']
