@@ -2,8 +2,18 @@
 The Alerts.in.ua API Client is a Python library that simplifies access to the alerts.in.ua API service. It provides real-time information about air raid alerts and other potential threats.
 
 
+## Contents
+* [Instalation](#installation)
+* [Usage](#usage)
+  * [Define Client](#define-client)
+  * [Get Active Alerts Asynchronous](#get-active-alerts-asynchronous)
+  * [Get Active Alerts Synchronous](#get-active-alerts-synchronous)
+  * [Get Air Raid status for IOT](#get-air-raid-status)
+* [Alerts](#alerts)
+  * [Properties and Attributes](#properties-and-attributes)
+  * [Methods](#properties-and-attributes)
 
-# Installation
+## Installation
 To install the Alerts.in.ua API Client, run the following command in your terminal:
 
 ```bash
@@ -12,166 +22,117 @@ pip install alerts_in_ua
 
 
 
-# Usage
+## Usage
 
 ⚠️ Before you can use this library, you need to obtain an API token by submitting an [API request form](https://alerts.in.ua/api-request).
 
 Here's an basic example of how to use the library to get a list of active alerts:
 
-Async:
+#### Define Client
+```python
+from alerts_in_ua import Client
+
+# Initialize the client with your token
+client = Client(token="your_token")
+# or set your token as environment variable AIU_API_TOKEN
+client = Client()
+```
+
+#### Get Active Alerts Asynchronous
 ```python
 import asyncio
-from alerts_in_ua import AsyncClient as AsyncAlertsClient
+
+# there client definition
 
 async def main():
-    # Initialize the client with your token
-    alerts_client = AsyncAlertsClient(token="your_token")
-    
     # Get the active alerts_details
-    active_alerts = await alerts_client.get_active_alerts()
+    active_alerts = await client.async_get_active()
     print(active_alerts)
-
 
 # Run the asynchronous function
 asyncio.run(main())
 
 ```
-or sync:
+#### Get Active Alerts Synchronous
 ```python
-from alerts_in_ua import Client as AlertsClient
-
-alerts_client = AlertsClient(token="your_token")
+# there client definition
 
 # Get the active alerts_details
-active_alerts = alerts_client.get_active_alerts()
+active_alerts = client.get_active()
 print(active_alerts)
 ```
 
-# Alerts 
+#### Get Air Raid status
+You can get air raid status for target location or all locatons
+The methods bellow returns **AirRaidOblastStatus** or **AirRaidOblastStatuses**
+```python
+AirRaidOblastStatus - Single air raid status
+AirRaidOblastStatuses - List[AirRaidOblastStatus]
+```
+```python
+# # For target location
+# Synchronous
+client.get_air_raid(<uid|location_title>)  # -> AirRaidOblastStatus
+
+# Asynchronous
+await client.async_get_air_raid(<uid|location_title>)  # -> AirRaidOblastStatus
+
+# # For all locations
+# Synchronous
+client.get_air_raids()  # -> AirRaidOblastStatuses
+
+# Asynchronous
+await client.async_get_air_raids()  # -> AirRaidOblastStatuses
+```
+#### You also can filter AirRaidOblastStatuses by multiple criteria
+
+```python
+# AirRaidOblastStatuses.filter(self, *criteria: FilterType) -> List[AirRaidOblastStatus]
+AirRaidOblastStatuses = statuses.filter(
+  ('location_uid', 16)
+) 
+```
+
+## Alerts
 
 Alerts class is a collection of alerts and provides various methods to filter and access these alerts.
 
-When user call `client.get_active_alerts()` it returns `Alerts` class.
-## Methods
+When user call `client.active_alerts()` it returns `Alerts` class.
 
-### filter(*args: str) -> List[Alert]
-This method filters the alerts based on the given parameters.
+### Properties and Attributes
 
 ```python
-filtered_alerts = active_alerts.filter('location_oblast', 'Донецька область','alert_type','air_raid')
+# Last tome of update
+last_updated = Alerts.last_updated_at  # -> Optional[datetime]
+
+# Meta
+meta = Alerts.meta  # -> Optional[AlertsMeta]
+
+# Meta
+alerts = Alerts.alerts  # -> Optional[List[AlertDetails]]
+```
+
+### Methods
+
+#### Alerts.filter(self, *criteria: FilterType) -> List[AlertDetails]
+This method filters the alerts based on the given parameters.
+You can apply multiple filters at a same time
+```python
+from alerts_in_ua.alerts import FilterCriterion
+
+filtered_alerts = alerts.filter(
+    FilterCriterion('location_uid', 16),
+    ('location_oblast', 'Донецька область'),
+    ('alert_type','air_raid')
+)
 ```
 In this example, filtered_alerts will contain all the air raid alerts that have the location oblast as 'Донецька область'.
 
-### get_alerts_by_location_title(location_title: str) -> List[Alert]
-This method returns all the alerts from specified location.
+#### def iter_alerts(self) -> Iterator[AlertDetails]:
 
 ```python
-kyiv_alerts = active_alerts.get_alerts_by_location_title('м. Київ')
-```
-
-### get_air_raid_alerts() -> List[Alert]
-This method returns all the alerts that are of alert type 'air_raid'.
-```python 
-air_raid_alerts = active_alerts.get_air_raid_alerts()
-```
-
-### get_oblast_alerts() -> List[Alert]
-This method returns all the alerts that are of location type 'oblast'.
-
-```python
-oblast_alerts = active_alerts.get_oblast_alerts()
-```
-
-### get_raion_alerts() -> List[Alert]
-This method returns all the alerts that are of location type 'raion'.
-```python
-raion_alerts = active_alerts.get_raion_alerts()
-```
-
-### get_hromada_alerts() -> List[Alert]
-This method returns all the alerts that are of location type 'hromada'.
-```python
-hromada_alerts = active_alerts.get_hromada_alerts()
-```
-
-### get_city_alerts() -> List[Alert]
-This method returns all the alerts that are of location type 'city'.
-
-```python
-city_alerts = active_alerts.get_city_alerts()
-```
-
-### get_alerts_by_alert_type(alert_type: str) -> List[Alert]
-This method returns all the alerts that are of the given alert type.
-
-```python
-artillery_shelling_alerts = active_alerts.get_alerts_by_alert_type('artillery_shelling')
-```
-
-### get_alerts_by_location_type(location_type: str) -> List[Alert]
-This method returns all the alerts that are of the given location type.
-
-```python
-urban_location_alerts = active_alerts.get_alerts_by_location_type('raion')
-```
-
-### get_alerts_by_oblast(oblast_title: str) -> List[Alert]
-This method returns all the alerts that are of the given oblast title.
-
-```python
-donetsk_oblast_alerts = active_alerts.get_alerts_by_oblast('Донецька область')
-```
-
-### get_alerts_by_location_uid(location_uid: str) -> List[Alert]
-This method returns all the alerts that have the given location uid.
-```python
-location_uid_alerts = active_alerts.get_alerts_by_location_uid('123456')
-```
-
-### get_artillery_shelling_alerts() -> List[Alert]
-This method returns all the alerts that are of alert type 'artillery_shelling'.
-```python 
-artillery_shelling_alerts = active_alerts.get_artillery_shelling_alerts()
-```
-
-### get_urban_fights_alerts() -> List[Alert]
-This method returns all the alerts that are of alert type 'urban_fights'.
-```python 
-urban_fights_alerts = active_alerts.get_urban_fights_alerts()
-```
-
-### get_nuclear_alerts() -> List[Alert]
-This method returns all the alerts that are of alert type 'nuclear'.
-```python 
-nuclear_alerts = active_alerts.get_nuclear_alerts()
-```
-
-### get_chemical_alerts() -> List[Alert]
-This method returns all the alerts that are of alert type 'chemical'.
-```python 
-chemical_alerts = active_alerts.get_chemical_alerts()
-```
-
-### get_all_alerts() -> List[Alert]
-This method returns all alerts.
-```python 
-all_alerts = active_alerts.get_all_alerts()
-```
-or you can use shortcut:
-```python 
-for alert in active_alerts:
-    print(alert)
-```
-### get_last_updated_at() -> datetime.datetime
-This method returns the datetime object representing the time when the alert information was last updated (Kyiv timezone).
-```python
-last_updated_at = alerts.get_last_updated_at()
-```
-
-### get_disclaimer() -> str
-This method returns the disclaimer associated with the alert information.
-```python
-disclaimer = alerts.get_disclaimer()
+# Get Alert.alerts Iterator
+alerts.iter_alerts() -> Iterator[AlertDetails]
 ```
 
 
