@@ -1,19 +1,15 @@
 import asyncio
-import os
 from unittest import TestCase
 
-from alerts_in_ua_ import Client
-from alerts_in_ua_.alert import LocationType, AlertDetails
-from alerts_in_ua_.alerts import Alerts, FilterCriterion, AirRaidOblastStatuses, AirRaidOblastStatus, HistoryPeriod
+from alerts_in_ua import Client
+from alerts_in_ua.alert import LocationType, AlertDetails
+from alerts_in_ua.alerts import Alerts, FilterCriterion, AirRaidOblastStatuses, AirRaidOblastStatus, HistoryPeriod
 
 
 class TestFetch(TestCase):
 
     def setUp(self) -> None:
-        self.token = os.environ["API_TOKEN"]
-        self.client = Client(token=self.token)
-
-        # self.alerts_states = self.client.get_air_raid_alert_statuses_by_oblast(True)
+        self.client = Client()
 
     def validete_alerts(self, alerts):
         self.assertIsInstance(alerts, Alerts)

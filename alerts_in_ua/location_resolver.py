@@ -1,8 +1,3 @@
-"""
-FIXME:
-     Using a class definition is an overhead for desired functionality
-"""
-
 from typing_extensions import Dict, Union
 
 AIR_RAID_STATE_LOCATIONS_ORDERED = [

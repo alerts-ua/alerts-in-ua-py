@@ -1,0 +1,44 @@
+name: Test
+
+on:
+  pull_request:
+    branches:
+      - '*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -e .[dev]
+        mypy --install-types 
+
+    - name: Analysing the code with pylint
+      env:
+        AIU_API_TOKEN: ${{ secrets.AIU_API_TOKEN }}
+      run: |
+        pytest ./tests
+      continue-on-error: true
+
+    - name: Analysing the code with mypy
+      run: |
+        mypy ./alerts_in_ua
+      continue-on-error: true
