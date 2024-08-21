@@ -1,7 +1,6 @@
 from alerts_in_ua import __version__
 
+# default const
+USER_AGENT = f"aiu-py-client/{__version__} (+https://alerts.in.ua)"
 
-class UserAgent:
-    @staticmethod
-    def get_user_agent():
-        return f"aiu-py-client/{__version__} (+https://alerts.in.ua)"
+__all__ = ("USER_AGENT",)
