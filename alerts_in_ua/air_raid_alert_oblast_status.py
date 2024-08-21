@@ -1,5 +1,6 @@
 class AirRaidAlertOblastStatus:
     STATUS_MAP = {'A': 'active', 'P': 'partly', 'N': 'no_alert'}
+
     def __init__(self, location_title: str, status: str, oblast_level_only: bool = False):
         status = self.STATUS_MAP.get(status, 'no_alert')
         if status == 'partly' and oblast_level_only:

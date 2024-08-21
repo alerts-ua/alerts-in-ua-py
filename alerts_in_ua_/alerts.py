@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 
 from pydantic import BaseModel, field_validator
 from typing_extensions import TypedDict, NamedTuple, Tuple, List, Iterator, Optional, Unpack, Any, Union
@@ -7,6 +8,15 @@ from alerts_in_ua_.alert import AlertDetails, AlertDetailsDict, AirRaidStatus
 from alerts_in_ua_.errors import deprecation_warning
 from alerts_in_ua_.location_resolver import AIR_RAID_STATE_LOCATIONS_ORDERED, resolve_uid
 from alerts_in_ua_.ua_date_parser import parse_ua_date, ALERTS_META_DATE_TIME_FORMAT
+
+
+class HistoryPeriod(str, Enum):
+    DAY_AGO = 'week_ago'
+    WEEK_AGO = 'week_ago'
+    MONTH_AGO = 'month_ago'
+
+    def __str__(self) -> str:
+        return self.value
 
 
 class FilterCriterion(NamedTuple):
@@ -320,6 +330,7 @@ class AirRaidOblastStatuses(list):
 
 
 __all__ = (
+    'HistoryPeriod',
     'FilterCriterion',
     'FilterType',
     'AlertsMetaDict',
@@ -328,5 +339,5 @@ __all__ = (
     'Alerts',
     'AirRaidOblastStatusDict',
     'AirRaidOblastStatus',
-    'AirRaidOblastStatuses'
+    'AirRaidOblastStatuses',
 )

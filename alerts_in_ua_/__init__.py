@@ -1,7 +1,5 @@
 __version__ = "0.2.7"
 
-# from .client import Client
-# from .async_client import AsyncClient
-# from .location_uid_resolver import LocationUidResolver
+from alerts_in_ua_.client import Client
 
-__all__ = ['Client', 'AsyncClient']
+__all__ = ('Client', )

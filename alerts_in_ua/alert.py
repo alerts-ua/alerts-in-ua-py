@@ -1,8 +1,7 @@
-from typing import Optional, Dict, List, Union
-import json
-import datetime
-import pytz
+from typing import Dict
+
 from .ua_date_parser import UaDateParser
+
 
 class Alert:
 
@@ -21,8 +20,8 @@ class Alert:
         self.notes = data.get("notes")
         self.calculated = data.get("calculated")
 
-
     def is_finished(self) -> bool:
         return self.finished_at is not None
+
     def __repr__(self):
         return f"Alert({{'id': {self.id!r}, 'location_title': {self.location_title!r}, 'location_type': {self.location_type!r}, 'started_at': {self.started_at!r}, 'finished_at': {self.finished_at!r}, 'updated_at': {self.updated_at!r}, 'alert_type': {self.alert_type!r}, 'location_uid': {self.location_uid!r}, 'location_oblast': {self.location_oblast!r}, 'location_oblast_uid': {self.location_oblast_uid!r}, 'location_raion': {self.location_raion!r}, 'notes': {self.notes!r}, 'calculated': {self.calculated!r}}}"

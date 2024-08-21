@@ -5,7 +5,6 @@ FIXME:
 
 from typing_extensions import Dict, Union
 
-
 AIR_RAID_STATE_LOCATIONS_ORDERED = [
     "Автономна Республіка Крим",
     "Волинська область",

@@ -1,9 +1,11 @@
 import datetime
+
 import pytz
 from typing_extensions import Optional
 
 ALERT_DATE_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 ALERTS_META_DATE_TIME_FORMAT = "%Y/%m/%d %H:%M:%S %z"
+
 
 def parse_ua_date(date_string: Optional[str],
                   time_format: str = ALERT_DATE_TIME_FORMAT) -> Optional[datetime.datetime]:

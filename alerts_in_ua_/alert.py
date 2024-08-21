@@ -14,6 +14,9 @@ class LocationType(str, Enum):
     HROMADA = 'hromada'
     UNKNOWN = 'unknown'
 
+    def __str__(self) -> str:
+        return self.value
+
 
 class AlertType(str, Enum):
     AIR_RAID = 'air_raid'
@@ -23,12 +26,18 @@ class AlertType(str, Enum):
     NUCLEAR = 'nuclear'
     UNKNOWN = 'unknown'
 
+    def __str__(self) -> str:
+        return self.value
+
 
 class AirRaidStatus(str, Enum):
     ACTIVE = 'A'
     PARTLY = 'P'
     NO_ALERT = 'N'
     UNKNOWN = 'unknown'
+
+    def __str__(self) -> str:
+        return self.value
 
 
 class AlertDetailsDict(TypedDict, total=False):

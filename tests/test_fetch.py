@@ -1,35 +1,66 @@
+import asyncio
 import os
 from unittest import TestCase
 
-from alerts_in_ua import Client
-from alerts_in_ua_.alert import LocationType
-from alerts_in_ua_.alerts import Alerts, FilterCriterion
+from alerts_in_ua_ import Client
+from alerts_in_ua_.alert import LocationType, AlertDetails
+from alerts_in_ua_.alerts import Alerts, FilterCriterion, AirRaidOblastStatuses, AirRaidOblastStatus, HistoryPeriod
 
 
 class TestFetch(TestCase):
-    class TestClient(Client):
-
-        def get_active_alerts(self, use_cache=True) -> Alerts:
-            """Custom fetch definition"""
-            data = self._request("alerts/active.json", use_cache=use_cache)
-            return Alerts(**data)
 
     def setUp(self) -> None:
         self.token = os.environ["API_TOKEN"]
-        self.client = self.TestClient(token=self.token)
-        self.alerts_details = self.client.get_active_alerts(False)
+        self.client = Client(token=self.token)
+
         # self.alerts_states = self.client.get_air_raid_alert_statuses_by_oblast(True)
 
+    def validete_alerts(self, alerts):
+        self.assertIsInstance(alerts, Alerts)
+        self.assertIsNotNone(alerts[0], AlertDetails)
+        self.assertIsNotNone(alerts[0].id)
+
     def test_fetch_result(self):
-        self.assertIsNotNone(self.alerts_details[0].id)
 
-    def test_filter(self):
-        filtered = self.alerts_details.filter(
-            FilterCriterion('location_uid', 16),
-            ('location_type', LocationType.OBLAST),
-            ('location_type', 'oblast')
-        )
-        self.assertIsInstance(filtered, list)
+        with self.subTest("Test sync"):
+            alerts = self.client.get_active(False)
+            self.validete_alerts(alerts)
 
-    # def test_fetch_short_states_result(self):
-    #     print(self.alerts_states)
+        with self.subTest("Test async"):
+            alerts = asyncio.run(self.client.async_get_active(False))
+            self.validete_alerts(alerts)
+
+        with self.subTest("Test alerts filter"):
+            filtered = alerts.filter(
+                FilterCriterion('location_uid', 16),
+                ('location_type', LocationType.OBLAST),
+                ('location_type', 'oblast')
+            )
+            self.assertIsInstance(filtered, list)
+
+    def test_fetch_history(self):
+
+        with self.subTest("Test sync"):
+            alerts = self.client.get_history(16, HistoryPeriod.DAY_AGO)
+            self.validete_alerts(alerts)
+
+        with self.subTest("Test async"):
+            alerts = asyncio.run(self.client.async_get_history(16, HistoryPeriod.DAY_AGO))
+            self.validete_alerts(alerts)
+
+    def test_oblast_statuses(self):
+        with self.subTest("Test sync single"):
+            statuses = self.client.get_air_raid(16, False)
+            self.assertIsInstance(statuses, AirRaidOblastStatus)
+
+        with self.subTest("Test async single"):
+            statuses = asyncio.run(self.client.async_get_air_raid(16, False))
+            self.assertIsInstance(statuses, AirRaidOblastStatus)
+
+        with self.subTest("Test sync all"):
+            statuses = self.client.get_air_raids(False)
+            self.assertIsInstance(statuses, AirRaidOblastStatuses)
+
+        with self.subTest("Test async all"):
+            statuses = asyncio.run(self.client.async_get_air_raids(False))
+            self.assertIsInstance(statuses, AirRaidOblastStatuses)
