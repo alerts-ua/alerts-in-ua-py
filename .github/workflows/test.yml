@@ -29,7 +29,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install -e .[dev]
-        mypy ./alerts_in_ua --install-types 
+        mypy ./alerts_in_ua --install-types --non-interactive
 
     - name: Analysing the code with pylint
       env:
