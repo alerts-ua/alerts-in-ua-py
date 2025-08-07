@@ -1,10 +1,21 @@
 from setuptools import setup, find_packages
-from alerts_in_ua import __version__
 import pathlib
 import re
 
 here = pathlib.Path(__file__).parent.resolve()  # current path
 long_description = (here / 'README.md').read_text(encoding='utf-8')  # Get the long description from the README file
+
+# Read version from __init__.py without importing
+def get_version():
+    init_file = here / 'alerts_in_ua' / '__init__.py'
+    with open(init_file, 'r') as f:
+        content = f.read()
+        match = re.search(r'__version__\s*=\s*["\']([^"\']+)["\']', content)
+        if match:
+            return match.group(1)
+        raise RuntimeError("Unable to find version string in __init__.py")
+
+__version__ = get_version()
 
 setup(
     name='alerts-in-ua',
