@@ -5,8 +5,11 @@ from .alerts import Alerts
 from .user_agent import UserAgent
 from .air_raid_alert_oblast_statuses import AirRaidAlertOblastStatuses
 from .air_raid_alert_oblast_status import AirRaidAlertOblastStatus
+from .air_raid_alert_status import AirRaidAlertStatus
+from .air_raid_alert_statuses import AirRaidAlertStatuses
 from typing import List, Dict, Union
 from .location_uid_resolver import LocationUidResolver
+from .air_raid_alert_status_resolver import AirRaidAlertStatusResolver
 class AsyncClient:
     REQUEST_TIMEOUT = 5
     API_BASE_URL = "https://api.alerts.in.ua"
@@ -19,7 +22,7 @@ class AsyncClient:
         self.headers = {
             "Accept": "application/json",
             "Authorization": f"Bearer {self.token}",
-            "User-Agent": UserAgent.get_user_agent()
+            "User-Agent": UserAgent.get_user_agent(self.token)
         }
         self.cache = {}
 
@@ -111,3 +114,25 @@ class AsyncClient:
     async def get_air_raid_alert_statuses_by_oblast(self, oblast_level_only=False, use_cache=True) -> AirRaidAlertOblastStatuses:
         data = await self._request("iot/active_air_raid_alerts_by_oblast.json", use_cache=use_cache)
         return AirRaidAlertOblastStatuses(data,oblast_level_only=oblast_level_only)
+
+    async def get_air_raid_alert_statuses(self, use_cache=True) -> AirRaidAlertStatuses:
+
+        data = await self._request("iot/active_air_raid_alerts.json", use_cache=use_cache)
+        
+        status_string = data if isinstance(data, str) else str(data)
+        
+        resolved_statuses = AirRaidAlertStatusResolver.resolve_status_string(
+            status_string, 
+            self.location_uid_resolver.uid_to_location
+        )
+        
+        statuses = []
+        for resolved_status in resolved_statuses:
+            air_raid_status = AirRaidAlertStatus(
+                location_title=resolved_status['location_title'],
+                status=resolved_status['status'],
+                uid=resolved_status['uid']
+            )
+            statuses.append(air_raid_status)
+                
+        return AirRaidAlertStatuses(statuses)

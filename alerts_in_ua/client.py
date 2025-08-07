@@ -6,7 +6,10 @@ from .user_agent import UserAgent
 from typing import List, Dict, Union
 from .air_raid_alert_oblast_statuses import AirRaidAlertOblastStatuses
 from .air_raid_alert_oblast_status import AirRaidAlertOblastStatus
+from .air_raid_alert_status import AirRaidAlertStatus
+from .air_raid_alert_statuses import AirRaidAlertStatuses
 from .location_uid_resolver import LocationUidResolver
+from .air_raid_alert_status_resolver import AirRaidAlertStatusResolver
 class Client:
     REQUEST_TIMEOUT = 5
     API_BASE_URL = "https://api.alerts.in.ua"
@@ -17,7 +20,7 @@ class Client:
         self.headers = {
             "Accept": "application/json",
             "Authorization": f"Bearer {self.token}",
-            "User-Agent": UserAgent.get_user_agent()
+            "User-Agent": UserAgent.get_user_agent(self.token)
         }
         self.cache = {}
 
@@ -80,6 +83,7 @@ class Client:
     def get_active_alerts(self, use_cache=True) -> Alerts:
         data = self._request("alerts/active.json", use_cache=use_cache)
         return Alerts(data)
+
     def get_alerts_history(self, oblast_uid_or_location_title: Union[int, str], period: str = 'week_ago', use_cache: bool = True) -> Alerts:
         if isinstance(oblast_uid_or_location_title, str):
            if oblast_uid_or_location_title.isdigit():
@@ -103,6 +107,28 @@ class Client:
             oblast_uid = oblast_uid_or_location_title
          data = self._request(f"iot/active_air_raid_alerts/{oblast_uid}.json", use_cache=use_cache)
          return AirRaidAlertOblastStatus(location_title = self.location_uid_resolver.resolve_location_title(oblast_uid),status=data,oblast_level_only=oblast_level_only)
+  
     def get_air_raid_alert_statuses_by_oblast(self, oblast_level_only=False, use_cache=True) -> AirRaidAlertOblastStatuses:
         data = self._request("iot/active_air_raid_alerts_by_oblast.json", use_cache=use_cache)
         return AirRaidAlertOblastStatuses(data,oblast_level_only=oblast_level_only)
+
+    def get_air_raid_alert_statuses(self, use_cache=True) -> AirRaidAlertStatuses:
+        data = self._request("iot/active_air_raid_alerts.json", use_cache=use_cache)
+        
+        status_string = data if isinstance(data, str) else str(data)
+        
+        resolved_statuses = AirRaidAlertStatusResolver.resolve_status_string(
+            status_string, 
+            self.location_uid_resolver.uid_to_location
+        )
+        
+        statuses = []
+        for resolved_status in resolved_statuses:
+            air_raid_status = AirRaidAlertStatus(
+                location_title=resolved_status['location_title'],
+                status=resolved_status['status'],
+                uid=resolved_status['uid']
+            )
+            statuses.append(air_raid_status)
+                
+        return AirRaidAlertStatuses(statuses)
