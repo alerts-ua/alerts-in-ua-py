@@ -1,5 +1,5 @@
 import requests
-from .errors import UnauthorizedError, RateLimitError, InternalServerError, ForbiddenError, ApiError
+from .errors import UnauthorizedError, RateLimitError, InternalServerError, ForbiddenError, ApiError, InvalidParameterException
 from .alert import Alert
 from .alerts import Alerts
 from .user_agent import UserAgent
@@ -24,16 +24,30 @@ class Client:
         }
         self.cache = {}
 
-    def _request(self, endpoint: str, use_cache=True):
+    SUPPORTED_API_VERSIONS = (1, 2)
+
+    def _validate_api_version(self, api_version):
+        if api_version not in Client.SUPPORTED_API_VERSIONS:
+            raise InvalidParameterException(f"Unsupported api_version: {api_version}. Supported: 1, 2")
+        return api_version
+
+    def _base_url_for(self, api_version):
+        if api_version == 1:
+            return self.base_url
+        return self.base_url.replace("/v1/", f"/v{api_version}/")
+
+    def _request(self, endpoint: str, use_cache=True, api_version=1):
+        base_url = self._base_url_for(api_version)
+        cache_key = endpoint if api_version == 1 else f"v{api_version}/{endpoint}"
         # Check if endpoint is in cache and return cached data if not modified
-        if endpoint in self.cache and use_cache == True:
-            cached_data = self.cache[endpoint]
+        if cache_key in self.cache and use_cache == True:
+            cached_data = self.cache[cache_key]
             headers = {
                 **self.headers,
                 **{"If-Modified-Since": cached_data["Last-Modified"]},
             }
             response = requests.get(
-                self.base_url + endpoint,
+                base_url + endpoint,
                 headers=headers,
                 timeout=Client.REQUEST_TIMEOUT,
             )
@@ -42,7 +56,7 @@ class Client:
 
         # Make the request
         response = requests.get(
-            self.base_url + endpoint,
+            base_url + endpoint,
             headers=self.headers,
             timeout=Client.REQUEST_TIMEOUT,
         )
@@ -50,7 +64,7 @@ class Client:
         # Check if response is successful
         if response.status_code == 200:
             data = response.json()
-            self.cache[endpoint] = {
+            self.cache[cache_key] = {
                 "Data": data,
                 "Last-Modified": response.headers["Last-Modified"],
             }
@@ -97,7 +111,7 @@ class Client:
         data = self._request(url, use_cache=use_cache)
         return Alerts(data)
 
-    def get_air_raid_alert_status(self, oblast_uid_or_location_title: Union[int, str], oblast_level_only=False, use_cache=True) -> AirRaidAlertOblastStatus:
+    def get_air_raid_alert_status(self, oblast_uid_or_location_title: Union[int, str], oblast_level_only=False, use_cache=True, api_version=1) -> AirRaidAlertOblastStatus:
          if isinstance(oblast_uid_or_location_title, str):
            if oblast_uid_or_location_title.isdigit():
               oblast_uid = int(oblast_uid_or_location_title)
@@ -105,15 +119,15 @@ class Client:
               oblast_uid = self.location_uid_resolver.resolve_uid(oblast_uid_or_location_title)
          else:
             oblast_uid = oblast_uid_or_location_title
-         data = self._request(f"iot/active_air_raid_alerts/{oblast_uid}.json", use_cache=use_cache)
+         data = self._request(f"iot/active_air_raid_alerts/{oblast_uid}.json", use_cache=use_cache, api_version=self._validate_api_version(api_version))
          return AirRaidAlertOblastStatus(location_title = self.location_uid_resolver.resolve_location_title(oblast_uid),status=data,oblast_level_only=oblast_level_only)
   
-    def get_air_raid_alert_statuses_by_oblast(self, oblast_level_only=False, use_cache=True) -> AirRaidAlertOblastStatuses:
-        data = self._request("iot/active_air_raid_alerts_by_oblast.json", use_cache=use_cache)
+    def get_air_raid_alert_statuses_by_oblast(self, oblast_level_only=False, use_cache=True, api_version=1) -> AirRaidAlertOblastStatuses:
+        data = self._request("iot/active_air_raid_alerts_by_oblast.json", use_cache=use_cache, api_version=self._validate_api_version(api_version))
         return AirRaidAlertOblastStatuses(data,oblast_level_only=oblast_level_only)
 
-    def get_air_raid_alert_statuses(self, use_cache=True) -> AirRaidAlertStatuses:
-        data = self._request("iot/active_air_raid_alerts.json", use_cache=use_cache)
+    def get_air_raid_alert_statuses(self, use_cache=True, api_version=1) -> AirRaidAlertStatuses:
+        data = self._request("iot/active_air_raid_alerts.json", use_cache=use_cache, api_version=self._validate_api_version(api_version))
         
         status_string = data if isinstance(data, str) else str(data)
         
@@ -127,7 +141,8 @@ class Client:
             air_raid_status = AirRaidAlertStatus(
                 location_title=resolved_status['location_title'],
                 status=resolved_status['status'],
-                uid=resolved_status['uid']
+                uid=resolved_status['uid'],
+                alert_level=resolved_status['alert_level']
             )
             statuses.append(air_raid_status)
                 

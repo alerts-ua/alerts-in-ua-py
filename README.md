@@ -7,7 +7,7 @@ A comprehensive Python library for accessing the [alerts.in.ua](https://alerts.i
 - 🚨 **Real-time alerts** - Get active air raid and other security alerts
 - 🟡 **Alert levels and threats** - Red / yellow alert level and the specific threats (drones, missiles, ...) behind each alert
 - 📍 **Location-based filtering** - Filter by oblasts, raions, hromadas, and cities
-- 🎯 **Air raid statuses** - Efficient bulk status retrieval for all regions
+- 🎯 **Air raid statuses** - Efficient bulk status retrieval for all regions, with red / yellow levels via the v2 IoT API
 - ⚡ **Async support** - Both synchronous and asynchronous clients
 - 🔄 **Caching** - Built-in request caching for better performance
 - 🛡️ **Error handling** - Comprehensive error handling and rate limiting
@@ -93,11 +93,12 @@ for alert in alerts:
 
 #### Air Raid Alert Statuses
 
-##### `get_air_raid_alert_statuses(use_cache=True) -> AirRaidAlertStatuses`
+##### `get_air_raid_alert_statuses(use_cache=True, api_version=1) -> AirRaidAlertStatuses`
 Get air raid alert statuses for all regions using a single efficient API call.
 
 **Parameters:**
 - `use_cache` (bool): Use cached data if available (default: True)
+- `api_version` (int): IoT API version, `1` (default) or `2`. With `2`, active statuses also carry `alert_level` (`'red'` / `'yellow'`), see [IoT API v2](#iot-api-v2-alert-levels)
 
 **Returns:**
 - `AirRaidAlertStatuses`: Container with all air raid alert statuses
@@ -118,17 +119,23 @@ print(f"Active alerts: {len(active_alerts)}")
 # Get all statuses
 for status in statuses:
     print(f"{status.location_title}: {status.status}")
+
+# v2: red / yellow alert levels
+statuses = client.get_air_raid_alert_statuses(api_version=2)
+red = statuses.get_red_alert_statuses()
+yellow = statuses.get_yellow_alert_statuses()
 ```
 
 #### Individual Region Status
 
-##### `get_air_raid_alert_status(oblast_uid_or_location_title, oblast_level_only=False, use_cache=True) -> AirRaidAlertOblastStatus`
+##### `get_air_raid_alert_status(oblast_uid_or_location_title, oblast_level_only=False, use_cache=True, api_version=1) -> AirRaidAlertOblastStatus`
 Get air raid alert status for a specific region.
 
 **Parameters:**
 - `oblast_uid_or_location_title` (Union[int, str]): UID or location title
 - `oblast_level_only` (bool): Return oblast-level data only (default: False)
 - `use_cache` (bool): Use cached data if available (default: True)
+- `api_version` (int): IoT API version, `1` (default) or `2`
 
 **Returns:**
 - `AirRaidAlertOblastStatus`: Status object for the specified region
@@ -143,16 +150,22 @@ status = client.get_air_raid_alert_status("Київська область")
 
 print(f"Status: {status.status}")
 print(f"Location: {status.location_title}")
+
+# v2: alert level
+status = client.get_air_raid_alert_status(31, api_version=2)  # м. Київ
+if status.is_red():
+    print("Red level alert in Kyiv")
 ```
 
 #### Oblast-Level Statuses
 
-##### `get_air_raid_alert_statuses_by_oblast(oblast_level_only=False, use_cache=True) -> AirRaidAlertOblastStatuses`
+##### `get_air_raid_alert_statuses_by_oblast(oblast_level_only=False, use_cache=True, api_version=1) -> AirRaidAlertOblastStatuses`
 Get air raid alert statuses for all oblasts.
 
 **Parameters:**
 - `oblast_level_only` (bool): Return oblast-level data only (default: False)
 - `use_cache` (bool): Use cached data if available (default: True)
+- `api_version` (int): IoT API version, `1` (default) or `2`
 
 **Returns:**
 - `AirRaidAlertOblastStatuses`: Container with oblast statuses
@@ -163,6 +176,11 @@ oblast_statuses = client.get_air_raid_alert_statuses_by_oblast()
 
 for status in oblast_statuses:
     print(f"{status.location_title}: {status.status}")
+
+# v2: oblasts with red / yellow alerts
+oblast_statuses = client.get_air_raid_alert_statuses_by_oblast(api_version=2)
+red_oblasts = oblast_statuses.get_red_alert_oblasts()
+yellow_oblasts = oblast_statuses.get_yellow_alert_oblasts()
 ```
 
 #### Historical Alerts
@@ -275,6 +293,11 @@ no_alerts = statuses.get_no_alert_statuses()
 
 # Custom filtering
 custom_filtered = statuses.filter_by_status('active')
+
+# Filter by alert level (api_version=2 only)
+red_alerts = statuses.get_red_alert_statuses()
+yellow_alerts = statuses.get_yellow_alert_statuses()
+red_alerts = statuses.filter_by_alert_level('red')
 ```
 
 **Container Features:**
@@ -346,23 +369,40 @@ Each status contains:
 - `location_title` (str): Location name
 - `status` (str): Alert status ('no_alert', 'active', 'partly')
 - `uid` (int): Location UID
+- `alert_level` (Optional[str]): `'red'` or `'yellow'` for active alerts fetched with `api_version=2`, otherwise `None`
+- `is_red()` / `is_yellow()`: level checks
 
 #### AirRaidAlertOblastStatus Object
 
 Each oblast status contains:
 
 - `location_title` (str): Oblast name
-- `status` (str): Alert status
-- `oblast_level_only` (bool): Whether this is oblast-level data only
+- `status` (str): Alert status ('no_alert', 'active', 'partly')
+- `alert_level` (Optional[str]): `'red'` or `'yellow'` for active alerts fetched with `api_version=2`, otherwise `None`
+- `is_active_on_all_oblast()` / `is_partly_active()` / `is_no_alert()` / `is_red()` / `is_yellow()`: status checks
+
+`AirRaidAlertOblastStatuses` (from `get_air_raid_alert_statuses_by_oblast`) supports iteration, `len()`, `get_active_alert_oblasts()`, `get_partly_active_alert_oblasts()`, `get_no_alert_oblasts()`, `get_red_alert_oblasts()` and `get_yellow_alert_oblasts()`.
 
 ### Status Values
 
 The API uses character codes that are mapped to meaningful values:
 
 - `N` → `no_alert` (Немає тривоги)
-- `A` → `active` (Активна тривога)
+- `A` → `active` (Активна тривога), v1
+- `R` → `active`, `alert_level='red'` (Активна тривога, червоний рівень), v2
+- `Y` → `active`, `alert_level='yellow'` (Активна тривога, жовтий рівень), v2
 - `P` → `partly` (Часткова тривога)
 - `(space)` → `undefined` (Немає даних для регіону) - automatically filtered out
+
+### IoT API v2 (alert levels)
+
+The IoT methods use the v1 endpoints by default. Pass `api_version=2` to use `/v2/iot/...`, which splits an active alert into red (`R`) and yellow (`Y`) levels. `status` stays `'active'` for both, so code written for v1 keeps working, and `alert_level` tells the levels apart. In `repr`, yellow-level active alerts show as 🟠 (🔴 red, 🟡 partly, 🟢 no alert). v1 and v2 responses are cached separately. Any other `api_version` raises `InvalidParameterException`.
+
+```python
+statuses = client.get_air_raid_alert_statuses(api_version=2)
+for status in statuses.get_active_alert_statuses():
+    print(status.location_title, status.alert_level)  # 'red' or 'yellow'
+```
 
 ### Error Handling
 
@@ -488,7 +528,9 @@ ALERTS_IN_UA_TOKEN=your_token python -m unittest tests.test_live
 - `Alert.threats`: list of `Threat` objects (`threat_type`, `level`, `started_at`, `source_message`), plus `has_threats()` and `get_threats_by_type()`.
 - `Alerts.get_alerts_by_alert_level()`, `get_red_alerts()`, `get_yellow_alerts()`, `get_alerts_with_threat_type()`.
 - `Alert.location_title_en` and `Alert.country`.
-- `Threat` and the error classes are exported from `alerts_in_ua`.
+- IoT API v2: `api_version=2` on `get_air_raid_alert_statuses()`, `get_air_raid_alert_status()` and `get_air_raid_alert_statuses_by_oblast()` (sync and async). Statuses gain `alert_level` and `is_red()` / `is_yellow()`; containers gain `get_red_alert_statuses()` / `get_yellow_alert_statuses()` / `filter_by_alert_level()` and `get_red_alert_oblasts()` / `get_yellow_alert_oblasts()`. v1 remains the default.
+- `len()` on `AirRaidAlertOblastStatuses`.
+- `Threat`, `InvalidParameterException` and the error classes are exported from `alerts_in_ua`.
 - Unit tests and opt-in live API tests.
 
 ## License

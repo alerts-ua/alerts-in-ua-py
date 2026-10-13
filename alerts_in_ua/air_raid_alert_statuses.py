@@ -62,6 +62,37 @@ class AirRaidAlertStatuses:
         """
         return self.filter_by_status('no_alert')
     
+    def filter_by_alert_level(self, alert_level: str) -> List[AirRaidAlertStatus]:
+        """
+        Filter statuses by alert level. Levels are only known for statuses
+        fetched with api_version=2.
+
+        Args:
+            alert_level (str): Level to filter by ('red', 'yellow')
+
+        Returns:
+            List[AirRaidAlertStatus]: Filtered list of status objects
+        """
+        return [status_obj for status_obj in self.statuses if status_obj.alert_level == alert_level]
+
+    def get_red_alert_statuses(self) -> List[AirRaidAlertStatus]:
+        """
+        Get all statuses with active red level alerts (api_version=2 only).
+
+        Returns:
+            List[AirRaidAlertStatus]: List of status objects with red alerts
+        """
+        return self.filter_by_alert_level('red')
+
+    def get_yellow_alert_statuses(self) -> List[AirRaidAlertStatus]:
+        """
+        Get all statuses with active yellow level alerts (api_version=2 only).
+
+        Returns:
+            List[AirRaidAlertStatus]: List of status objects with yellow alerts
+        """
+        return self.filter_by_alert_level('yellow')
+
     def get_status(self, uid) -> Optional[AirRaidAlertStatus]:
         """
         Get status by UID using cached lookup.
