@@ -152,6 +152,36 @@ This method returns all the alerts that are of alert type 'chemical'.
 chemical_alerts = active_alerts.get_chemical_alerts()
 ```
 
+### get_alerts_by_alert_level(alert_level: str) -> List[Alert]
+This method returns all the alerts with the given alert level (`red` or `yellow`).
+
+```python
+yellow_alerts = active_alerts.get_alerts_by_alert_level('yellow')
+```
+
+### get_red_alerts() -> List[Alert]
+This method returns all the alerts with the red alert level.
+
+```python
+red_alerts = active_alerts.get_red_alerts()
+```
+
+### get_yellow_alerts() -> List[Alert]
+This method returns all the alerts with the yellow alert level.
+
+```python
+yellow_alerts = active_alerts.get_yellow_alerts()
+```
+
+### get_alerts_with_threat_type(threat_type: str) -> List[Alert]
+This method returns all the alerts that currently have an open threat of the given type
+(`tactic_aircraft_activity`, `strategic_aircraft_activity`, `mig31k_departure`, `ballistic_missiles`,
+`cruise_missiles`, `unspecified_missiles`, `drones`, `guided_aerial_bombs`, `air_defense`, `unknown`).
+
+```python
+drone_alerts = active_alerts.get_alerts_with_threat_type('drones')
+```
+
 ### get_all_alerts() -> List[Alert]
 This method returns all alerts.
 ```python 
@@ -178,3 +208,21 @@ disclaimer = alerts.get_disclaimer()
 
 # License
 MIT 2023
+
+# Alert levels and threats
+
+Each `Alert` has an `alert_level` (`red` or `yellow`) and a list of `threats` — the individual threats
+currently open within the alert. `threats` is an empty list when there are none.
+
+```python
+for alert in active_alerts:
+    if alert.is_yellow():
+        print(alert.location_title, "is on yellow level")
+    for threat in alert.threats:
+        print(threat.threat_type, threat.level, threat.started_at, threat.source_message)
+```
+
+`Alert` helpers: `is_red()`, `is_yellow()`, `has_threats()`, `get_threats_by_type(threat_type)`.
+
+`Threat` fields: `threat_type`, `level` (`red` / `yellow`), `started_at` (datetime in Kyiv time),
+`source_message` (original wording from the source, may be `None`). Helpers: `is_red()`, `is_yellow()`.
