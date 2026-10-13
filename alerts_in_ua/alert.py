@@ -21,6 +21,7 @@ class Alert:
         self.location_oblast_uid = data.get("location_oblast_uid")
         self.location_raion = data.get("location_raion")
         self.notes = data.get("notes")
+        self.country = data.get("country")
         self.calculated = data.get("calculated")
         self.alert_level = data.get("alert_level")
         self.threats = [Threat(threat) for threat in data.get("threats") or []]
@@ -42,4 +43,4 @@ class Alert:
         return [threat for threat in self.threats if threat.threat_type == threat_type]
 
     def __repr__(self):
-        return f"Alert({{'id': {self.id!r}, 'location_title': {self.location_title!r}, 'location_title_en': {self.location_title_en!r}, 'location_type': {self.location_type!r}, 'started_at': {self.started_at!r}, 'finished_at': {self.finished_at!r}, 'updated_at': {self.updated_at!r}, 'alert_type': {self.alert_type!r}, 'location_uid': {self.location_uid!r}, 'location_oblast': {self.location_oblast!r}, 'location_oblast_uid': {self.location_oblast_uid!r}, 'location_raion': {self.location_raion!r}, 'notes': {self.notes!r}, 'calculated': {self.calculated!r}, 'alert_level': {self.alert_level!r}, 'threats': {self.threats!r}}})"
+        return f"Alert({{'id': {self.id!r}, 'location_title': {self.location_title!r}, 'location_title_en': {self.location_title_en!r}, 'location_type': {self.location_type!r}, 'started_at': {self.started_at!r}, 'finished_at': {self.finished_at!r}, 'updated_at': {self.updated_at!r}, 'alert_type': {self.alert_type!r}, 'location_uid': {self.location_uid!r}, 'location_oblast': {self.location_oblast!r}, 'location_oblast_uid': {self.location_oblast_uid!r}, 'location_raion': {self.location_raion!r}, 'notes': {self.notes!r}, 'country': {self.country!r}, 'calculated': {self.calculated!r}, 'alert_level': {self.alert_level!r}, 'threats': {self.threats!r}}})"

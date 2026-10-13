@@ -222,7 +222,19 @@ for alert in active_alerts:
         print(threat.threat_type, threat.level, threat.started_at, threat.source_message)
 ```
 
-`Alert` helpers: `is_red()`, `is_yellow()`, `has_threats()`, `get_threats_by_type(threat_type)`.
+`Alert` also has `location_title_en` and `country`. Helpers: `is_red()`, `is_yellow()`, `has_threats()`, `get_threats_by_type(threat_type)`.
 
 `Threat` fields: `threat_type`, `level` (`red` / `yellow`), `started_at` (datetime in Kyiv time),
 `source_message` (original wording from the source, may be `None`). Helpers: `is_red()`, `is_yellow()`.
+
+# Running tests
+
+```bash
+python -m unittest discover -s tests -t .
+```
+
+Live tests against the API are skipped unless a token is provided:
+
+```bash
+ALERTS_IN_UA_TOKEN=your_token python -m unittest tests.test_live
+```
