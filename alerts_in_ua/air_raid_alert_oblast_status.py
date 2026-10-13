@@ -1,6 +1,8 @@
 class AirRaidAlertOblastStatus:
-    STATUS_MAP = {'A': 'active', 'P': 'partly', 'N': 'no_alert'}
+    STATUS_MAP = {'A': 'active', 'R': 'active', 'Y': 'active', 'P': 'partly', 'N': 'no_alert'}
+    LEVEL_MAP = {'R': 'red', 'Y': 'yellow'}
     def __init__(self, location_title: str, status: str, oblast_level_only: bool = False):
+        self.alert_level = self.LEVEL_MAP.get(status)
         status = self.STATUS_MAP.get(status, 'no_alert')
         if status == 'partly' and oblast_level_only:
             status = 'no_alert'
@@ -16,11 +18,19 @@ class AirRaidAlertOblastStatus:
     def is_no_alert(self) -> bool:
         return self.status == "no_alert"
 
+    def is_red(self) -> bool:
+        return self.alert_level == "red"
+
+    def is_yellow(self) -> bool:
+        return self.alert_level == "yellow"
+
     def location_title(self) -> str:
         return self.location_title
 
     def __repr__(self) -> str:
-        if self.status == "active":
+        if self.status == "active" and self.alert_level == "yellow":
+            return f"🟠 {self.location_title}"
+        elif self.status == "active":
             return f"🔴 {self.location_title}"
         elif self.status == "partly":
             return f"🟡 {self.location_title}"

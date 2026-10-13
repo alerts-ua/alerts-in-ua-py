@@ -4,7 +4,9 @@ class AirRaidAlertStatusResolver:
     
     The API returns a string where each character represents the status of a region by its UID index:
     - N: No alert (Немає тривоги)
-    - A: Active alert (Активна тривога) 
+    - A: Active alert (Активна тривога), v1 only
+    - R: Active alert, red level (Активна тривога, червоний рівень), v2 only
+    - Y: Active alert, yellow level (Активна тривога, жовтий рівень), v2 only
     - P: Partial alert (Часткова тривога)
     - (space): No data for region (UID not assigned to any region)
     """
@@ -12,8 +14,15 @@ class AirRaidAlertStatusResolver:
     STATUS_MAPPING = {
         'N': 'no_alert',    # Немає тривоги
         'A': 'active',      # Активна тривога
+        'R': 'active',      # Активна тривога, червоний рівень
+        'Y': 'active',      # Активна тривога, жовтий рівень
         'P': 'partly',      # Часткова тривога
         ' ': 'undefined',    # Немає даних для регіону 
+    }
+
+    LEVEL_MAPPING = {
+        'R': 'red',
+        'Y': 'yellow',
     }
     
     @classmethod
@@ -28,6 +37,19 @@ class AirRaidAlertStatusResolver:
             str: The resolved status value ('no_alert', 'active', or 'partly')
         """
         return cls.STATUS_MAPPING.get(status_char, 'no_alert')
+
+    @classmethod
+    def resolve_level_char(cls, status_char: str):
+        """
+        Resolves a single status character to its alert level.
+
+        Args:
+            status_char (str): The character from the API response
+
+        Returns:
+            Optional[str]: 'red' or 'yellow' for v2 active statuses, None otherwise
+        """
+        return cls.LEVEL_MAPPING.get(status_char)
     
     @classmethod
     def resolve_status_string(cls, status_string: str, uid_to_location_mapping: dict) -> list:
@@ -40,7 +62,7 @@ class AirRaidAlertStatusResolver:
             uid_to_location_mapping (dict): Mapping of UID to location title
             
         Returns:
-            list: List of dictionaries with 'uid', 'location_title', and 'status' keys
+            list: List of dictionaries with 'uid', 'location_title', 'status' and 'alert_level' keys
         """
         resolved_statuses = []
         
@@ -56,7 +78,8 @@ class AirRaidAlertStatusResolver:
                 resolved_statuses.append({
                     'uid': uid,
                     'location_title': location_title,
-                    'status': status
+                    'status': status,
+                    'alert_level': cls.resolve_level_char(status_char)
                 })
        
                 

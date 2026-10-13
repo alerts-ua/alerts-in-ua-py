@@ -3,3 +3,13 @@
 __pycache__
 example.py
 tests/*
+!tests/__init__.py
+!tests/helpers.py
+!tests/test_threat.py
+!tests/test_alert.py
+!tests/test_alerts.py
+!tests/test_clients.py
+!tests/test_live.py
+!tests/fixtures/
+!tests/test_package.py
+!tests/test_iot.py

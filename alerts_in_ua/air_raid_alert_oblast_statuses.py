@@ -50,8 +50,20 @@ class AirRaidAlertOblastStatuses:
      def get_no_alert_oblasts(self) -> List[AirRaidAlertOblastStatus]:
         return self.filter_by_status('no_alert')
 
+     def filter_by_alert_level(self, alert_level):
+        return [oblast_status for oblast_status in self.oblast_statuses if oblast_status.alert_level == alert_level]
+
+     def get_red_alert_oblasts(self) -> List[AirRaidAlertOblastStatus]:
+        return self.filter_by_alert_level('red')
+
+     def get_yellow_alert_oblasts(self) -> List[AirRaidAlertOblastStatus]:
+        return self.filter_by_alert_level('yellow')
+
      def __iter__(self) -> List[AirRaidAlertOblastStatus]:
         return iter(self.oblast_statuses)
+
+     def __len__(self) -> int:
+        return len(self.oblast_statuses)
 
      def __repr__(self) -> str:
          return str(self.oblast_statuses)

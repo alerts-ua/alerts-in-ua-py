@@ -26,17 +26,29 @@ class AsyncClient:
         }
         self.cache = {}
 
-    async def _request(self, endpoint: str, use_cache=True):
+    @staticmethod
+    def _iot_api_version(include_alert_level):
+        # The v2 IoT endpoints split an active alert into red (R) and yellow (Y)
+        return 2 if include_alert_level else 1
+
+    def _base_url_for(self, api_version):
+        if api_version == 1:
+            return self.base_url
+        return self.base_url.replace("/v1/", f"/v{api_version}/")
+
+    async def _request(self, endpoint: str, use_cache=True, api_version=1):
+        base_url = self._base_url_for(api_version)
+        cache_key = endpoint if api_version == 1 else f"v{api_version}/{endpoint}"
         async with aiohttp.ClientSession(AsyncClient.API_BASE_URL) as session:
             # Check if endpoint is in cache and return cached data if not modified
-            if endpoint in self.cache and use_cache == True:
-                cached_data = self.cache[endpoint]
+            if cache_key in self.cache and use_cache == True:
+                cached_data = self.cache[cache_key]
                 headers = {
                     **self.headers,
                     **{"If-Modified-Since": cached_data["Last-Modified"]},
                 }
                 response = await session.get(
-                    self.base_url + endpoint,
+                    base_url + endpoint,
                     headers=headers,
                     timeout=AsyncClient.REQUEST_TIMEOUT,
                 )
@@ -45,7 +57,7 @@ class AsyncClient:
 
             # Make the request
             response = await session.get(
-                self.base_url + endpoint,
+                base_url + endpoint,
                 headers=self.headers,
                 timeout=AsyncClient.REQUEST_TIMEOUT,
             )
@@ -53,7 +65,7 @@ class AsyncClient:
             # Check if response is successful
             if response.status == 200:
                 data = await response.json()
-                self.cache[endpoint] = {
+                self.cache[cache_key] = {
                     "Data": data,
                     "Last-Modified": response.headers["Last-Modified"],
                 }
@@ -100,7 +112,7 @@ class AsyncClient:
         return Alerts(data)
 
 
-    async def get_air_raid_alert_status(self, oblast_uid_or_location_title: Union[int, str], oblast_level_only=False, use_cache=True) -> AirRaidAlertOblastStatus:
+    async def get_air_raid_alert_status(self, oblast_uid_or_location_title: Union[int, str], oblast_level_only=False, use_cache=True, include_alert_level=False) -> AirRaidAlertOblastStatus:
         if isinstance(oblast_uid_or_location_title, str):
            if oblast_uid_or_location_title.isdigit():
               oblast_uid = int(oblast_uid_or_location_title)
@@ -108,16 +120,16 @@ class AsyncClient:
               oblast_uid = self.location_uid_resolver.resolve_uid(oblast_uid_or_location_title)
         else:
             oblast_uid = oblast_uid_or_location_title
-        data = await self._request(f"iot/active_air_raid_alerts/{oblast_uid}.json", use_cache=use_cache)
+        data = await self._request(f"iot/active_air_raid_alerts/{oblast_uid}.json", use_cache=use_cache, api_version=self._iot_api_version(include_alert_level))
         return AirRaidAlertOblastStatus(location_title = self.location_uid_resolver.resolve_location_title(oblast_uid),status=data,oblast_level_only=oblast_level_only)
 
-    async def get_air_raid_alert_statuses_by_oblast(self, oblast_level_only=False, use_cache=True) -> AirRaidAlertOblastStatuses:
-        data = await self._request("iot/active_air_raid_alerts_by_oblast.json", use_cache=use_cache)
+    async def get_air_raid_alert_statuses_by_oblast(self, oblast_level_only=False, use_cache=True, include_alert_level=False) -> AirRaidAlertOblastStatuses:
+        data = await self._request("iot/active_air_raid_alerts_by_oblast.json", use_cache=use_cache, api_version=self._iot_api_version(include_alert_level))
         return AirRaidAlertOblastStatuses(data,oblast_level_only=oblast_level_only)
 
-    async def get_air_raid_alert_statuses(self, use_cache=True) -> AirRaidAlertStatuses:
+    async def get_air_raid_alert_statuses(self, use_cache=True, include_alert_level=False) -> AirRaidAlertStatuses:
 
-        data = await self._request("iot/active_air_raid_alerts.json", use_cache=use_cache)
+        data = await self._request("iot/active_air_raid_alerts.json", use_cache=use_cache, api_version=self._iot_api_version(include_alert_level))
         
         status_string = data if isinstance(data, str) else str(data)
         
@@ -131,7 +143,8 @@ class AsyncClient:
             air_raid_status = AirRaidAlertStatus(
                 location_title=resolved_status['location_title'],
                 status=resolved_status['status'],
-                uid=resolved_status['uid']
+                uid=resolved_status['uid'],
+                alert_level=resolved_status['alert_level']
             )
             statuses.append(air_raid_status)
                 

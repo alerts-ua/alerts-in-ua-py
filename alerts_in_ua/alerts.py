@@ -62,6 +62,18 @@ class Alerts:
     def get_chemical_alerts(self) -> List[Alert]:
         return self.get_alerts_by_alert_type('chemical')
 
+    def get_alerts_by_alert_level(self, alert_level: str) -> List[Alert]:
+        return self.filter('alert_level',alert_level)
+
+    def get_red_alerts(self) -> List[Alert]:
+        return self.get_alerts_by_alert_level('red')
+
+    def get_yellow_alerts(self) -> List[Alert]:
+        return self.get_alerts_by_alert_level('yellow')
+
+    def get_alerts_with_threat_type(self, threat_type: str) -> List[Alert]:
+        return [alert for alert in self.alerts if alert.get_threats_by_type(threat_type)]
+
     def get_all_alerts(self) -> List[Alert]:
         return self.alerts
 
