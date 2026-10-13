@@ -11,3 +11,4 @@ tests/*
 !tests/test_clients.py
 !tests/test_live.py
 !tests/fixtures/
+!tests/test_package.py

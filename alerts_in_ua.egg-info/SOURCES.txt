@@ -27,4 +27,5 @@ tests/test_alert.py
 tests/test_alerts.py
 tests/test_clients.py
 tests/test_live.py
+tests/test_package.py
 tests/test_threat.py
