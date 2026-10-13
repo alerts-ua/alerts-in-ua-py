@@ -1,5 +1,5 @@
 import requests
-from .errors import UnauthorizedError, RateLimitError, InternalServerError, ForbiddenError, ApiError, InvalidParameterException
+from .errors import UnauthorizedError, RateLimitError, InternalServerError, ForbiddenError, ApiError
 from .alert import Alert
 from .alerts import Alerts
 from .user_agent import UserAgent
@@ -24,12 +24,10 @@ class Client:
         }
         self.cache = {}
 
-    SUPPORTED_API_VERSIONS = (1, 2)
-
-    def _validate_api_version(self, api_version):
-        if api_version not in Client.SUPPORTED_API_VERSIONS:
-            raise InvalidParameterException(f"Unsupported api_version: {api_version}. Supported: 1, 2")
-        return api_version
+    @staticmethod
+    def _iot_api_version(include_alert_level):
+        # The v2 IoT endpoints split an active alert into red (R) and yellow (Y)
+        return 2 if include_alert_level else 1
 
     def _base_url_for(self, api_version):
         if api_version == 1:
@@ -111,7 +109,7 @@ class Client:
         data = self._request(url, use_cache=use_cache)
         return Alerts(data)
 
-    def get_air_raid_alert_status(self, oblast_uid_or_location_title: Union[int, str], oblast_level_only=False, use_cache=True, api_version=1) -> AirRaidAlertOblastStatus:
+    def get_air_raid_alert_status(self, oblast_uid_or_location_title: Union[int, str], oblast_level_only=False, use_cache=True, include_alert_level=False) -> AirRaidAlertOblastStatus:
          if isinstance(oblast_uid_or_location_title, str):
            if oblast_uid_or_location_title.isdigit():
               oblast_uid = int(oblast_uid_or_location_title)
@@ -119,15 +117,15 @@ class Client:
               oblast_uid = self.location_uid_resolver.resolve_uid(oblast_uid_or_location_title)
          else:
             oblast_uid = oblast_uid_or_location_title
-         data = self._request(f"iot/active_air_raid_alerts/{oblast_uid}.json", use_cache=use_cache, api_version=self._validate_api_version(api_version))
+         data = self._request(f"iot/active_air_raid_alerts/{oblast_uid}.json", use_cache=use_cache, api_version=self._iot_api_version(include_alert_level))
          return AirRaidAlertOblastStatus(location_title = self.location_uid_resolver.resolve_location_title(oblast_uid),status=data,oblast_level_only=oblast_level_only)
   
-    def get_air_raid_alert_statuses_by_oblast(self, oblast_level_only=False, use_cache=True, api_version=1) -> AirRaidAlertOblastStatuses:
-        data = self._request("iot/active_air_raid_alerts_by_oblast.json", use_cache=use_cache, api_version=self._validate_api_version(api_version))
+    def get_air_raid_alert_statuses_by_oblast(self, oblast_level_only=False, use_cache=True, include_alert_level=False) -> AirRaidAlertOblastStatuses:
+        data = self._request("iot/active_air_raid_alerts_by_oblast.json", use_cache=use_cache, api_version=self._iot_api_version(include_alert_level))
         return AirRaidAlertOblastStatuses(data,oblast_level_only=oblast_level_only)
 
-    def get_air_raid_alert_statuses(self, use_cache=True, api_version=1) -> AirRaidAlertStatuses:
-        data = self._request("iot/active_air_raid_alerts.json", use_cache=use_cache, api_version=self._validate_api_version(api_version))
+    def get_air_raid_alert_statuses(self, use_cache=True, include_alert_level=False) -> AirRaidAlertStatuses:
+        data = self._request("iot/active_air_raid_alerts.json", use_cache=use_cache, api_version=self._iot_api_version(include_alert_level))
         
         status_string = data if isinstance(data, str) else str(data)
         

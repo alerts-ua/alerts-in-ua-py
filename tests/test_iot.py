@@ -2,7 +2,7 @@ import asyncio
 import unittest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from alerts_in_ua import AsyncClient, Client, InvalidParameterException
+from alerts_in_ua import AsyncClient, Client
 from alerts_in_ua.air_raid_alert_oblast_status import AirRaidAlertOblastStatus
 from alerts_in_ua.air_raid_alert_oblast_statuses import AirRaidAlertOblastStatuses
 from alerts_in_ua.air_raid_alert_status import AirRaidAlertStatus
@@ -90,7 +90,7 @@ class ClientIotTestCase(unittest.TestCase):
     @patch("alerts_in_ua.client.requests.get")
     def test_statuses_v2(self, mock_get):
         mock_get.return_value = ok_response(uid_string({16: "R", 31: "Y"}))
-        statuses = Client(token="test").get_air_raid_alert_statuses(api_version=2)
+        statuses = Client(token="test").get_air_raid_alert_statuses(include_alert_level=True)
         self.assertEqual(mock_get.call_args[0][0], "https://api.alerts.in.ua/v2/iot/active_air_raid_alerts.json")
         self.assertEqual([s.uid for s in statuses.get_red_alert_statuses()], [16])
         self.assertEqual([s.uid for s in statuses.get_yellow_alert_statuses()], [31])
@@ -100,11 +100,11 @@ class ClientIotTestCase(unittest.TestCase):
     def test_single_status_and_by_oblast_v2(self, mock_get):
         client = Client(token="test")
         mock_get.return_value = ok_response("Y")
-        status = client.get_air_raid_alert_status(31, api_version=2)
+        status = client.get_air_raid_alert_status(31, include_alert_level=True)
         self.assertEqual(mock_get.call_args[0][0], "https://api.alerts.in.ua/v2/iot/active_air_raid_alerts/31.json")
         self.assertTrue(status.is_yellow())
         mock_get.return_value = ok_response(BY_OBLAST_V2)
-        oblasts = client.get_air_raid_alert_statuses_by_oblast(api_version=2)
+        oblasts = client.get_air_raid_alert_statuses_by_oblast(include_alert_level=True)
         self.assertEqual(mock_get.call_args[0][0], "https://api.alerts.in.ua/v2/iot/active_air_raid_alerts_by_oblast.json")
         self.assertEqual(len(oblasts.get_red_alert_oblasts()), 4)
 
@@ -113,14 +113,18 @@ class ClientIotTestCase(unittest.TestCase):
         mock_get.side_effect = [ok_response("A"), ok_response("R")]
         client = Client(token="test")
         client.get_air_raid_alert_status(31)
-        status = client.get_air_raid_alert_status(31, api_version=2)
+        status = client.get_air_raid_alert_status(31, include_alert_level=True)
         self.assertNotIn("If-Modified-Since", mock_get.call_args[1]["headers"])
         self.assertTrue(status.is_red())
         self.assertIn("v2/iot/active_air_raid_alerts/31.json", client.cache)
 
-    def test_unsupported_api_version(self):
-        with self.assertRaises(InvalidParameterException):
-            Client(token="test").get_air_raid_alert_statuses(api_version=3)
+    @patch("alerts_in_ua.client.requests.get")
+    def test_include_alert_level_false_uses_v1(self, mock_get):
+        mock_get.return_value = ok_response("A")
+        status = Client(token="test").get_air_raid_alert_status(31, include_alert_level=False)
+        self.assertTrue(mock_get.call_args[0][0].endswith("/v1/iot/active_air_raid_alerts/31.json"))
+        self.assertTrue(status.is_active_on_all_oblast())
+        self.assertIsNone(status.alert_level)
 
 
 class AsyncClientIotTestCase(unittest.TestCase):
@@ -132,14 +136,10 @@ class AsyncClientIotTestCase(unittest.TestCase):
         session.__aenter__ = AsyncMock(return_value=session)
         session.__aexit__ = AsyncMock(return_value=False)
         with patch("alerts_in_ua.async_client.aiohttp.ClientSession", return_value=session):
-            statuses = asyncio.run(AsyncClient(token="test").get_air_raid_alert_statuses(api_version=2))
+            statuses = asyncio.run(AsyncClient(token="test").get_air_raid_alert_statuses(include_alert_level=True))
         self.assertEqual(session.get.call_args[0][0], "/v2/iot/active_air_raid_alerts.json")
         self.assertTrue(statuses.get_status(16).is_red())
         self.assertTrue(statuses.get_status(31).is_yellow())
-
-    def test_unsupported_api_version(self):
-        with self.assertRaises(InvalidParameterException):
-            asyncio.run(AsyncClient(token="test").get_air_raid_alert_statuses_by_oblast(api_version=0))
 
 
 if __name__ == "__main__":

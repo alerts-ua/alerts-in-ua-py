@@ -38,7 +38,7 @@ class LiveTestCase(unittest.TestCase):
         alerts = asyncio.run(AsyncClient(token=TOKEN).get_active_alerts(use_cache=False))
         self.check_alerts(alerts)
 
-    def check_iot_v2_statuses(self, statuses):
+    def check_iot_levels(self, statuses):
         self.assertGreater(len(statuses), 0)
         for status in statuses:
             if status.status == "active":
@@ -46,23 +46,23 @@ class LiveTestCase(unittest.TestCase):
             else:
                 self.assertIsNone(status.alert_level, status)
 
-    def test_iot_v2_statuses(self):
-        self.check_iot_v2_statuses(Client(token=TOKEN).get_air_raid_alert_statuses(use_cache=False, api_version=2))
+    def test_iot_levels_statuses(self):
+        self.check_iot_levels(Client(token=TOKEN).get_air_raid_alert_statuses(use_cache=False, include_alert_level=True))
 
-    def test_iot_v2_statuses_async(self):
-        statuses = asyncio.run(AsyncClient(token=TOKEN).get_air_raid_alert_statuses(use_cache=False, api_version=2))
-        self.check_iot_v2_statuses(statuses)
+    def test_iot_levels_statuses_async(self):
+        statuses = asyncio.run(AsyncClient(token=TOKEN).get_air_raid_alert_statuses(use_cache=False, include_alert_level=True))
+        self.check_iot_levels(statuses)
 
-    def test_iot_v2_by_oblast_and_single_status(self):
+    def test_iot_levels_by_oblast_and_single_status(self):
         client = Client(token=TOKEN)
-        oblasts = client.get_air_raid_alert_statuses_by_oblast(use_cache=False, api_version=2)
+        oblasts = client.get_air_raid_alert_statuses_by_oblast(use_cache=False, include_alert_level=True)
         self.assertEqual(len(oblasts), 27)
-        self.check_iot_v2_statuses(oblasts)
-        status = client.get_air_raid_alert_status(31, use_cache=False, api_version=2)
+        self.check_iot_levels(oblasts)
+        status = client.get_air_raid_alert_status(31, use_cache=False, include_alert_level=True)
         self.assertEqual(status.location_title, "м. Київ")
-        self.check_iot_v2_statuses([status])
+        self.check_iot_levels([status])
 
-    def test_iot_v1_has_no_levels(self):
+    def test_iot_without_levels(self):
         statuses = Client(token=TOKEN).get_air_raid_alert_statuses(use_cache=False)
         self.assertTrue(all(s.alert_level is None for s in statuses))
 

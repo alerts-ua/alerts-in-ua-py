@@ -65,7 +65,7 @@ class AirRaidAlertStatuses:
     def filter_by_alert_level(self, alert_level: str) -> List[AirRaidAlertStatus]:
         """
         Filter statuses by alert level. Levels are only known for statuses
-        fetched with api_version=2.
+        fetched with include_alert_level=True.
 
         Args:
             alert_level (str): Level to filter by ('red', 'yellow')
@@ -77,7 +77,7 @@ class AirRaidAlertStatuses:
 
     def get_red_alert_statuses(self) -> List[AirRaidAlertStatus]:
         """
-        Get all statuses with active red level alerts (api_version=2 only).
+        Get all statuses with active red level alerts (include_alert_level=True only).
 
         Returns:
             List[AirRaidAlertStatus]: List of status objects with red alerts
@@ -86,7 +86,7 @@ class AirRaidAlertStatuses:
 
     def get_yellow_alert_statuses(self) -> List[AirRaidAlertStatus]:
         """
-        Get all statuses with active yellow level alerts (api_version=2 only).
+        Get all statuses with active yellow level alerts (include_alert_level=True only).
 
         Returns:
             List[AirRaidAlertStatus]: List of status objects with yellow alerts
