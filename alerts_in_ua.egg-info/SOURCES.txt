@@ -13,6 +13,7 @@ alerts_in_ua/async_client.py
 alerts_in_ua/client.py
 alerts_in_ua/errors.py
 alerts_in_ua/location_uid_resolver.py
+alerts_in_ua/threat.py
 alerts_in_ua/ua_date_parser.py
 alerts_in_ua/user_agent.py
 alerts_in_ua.egg-info/PKG-INFO
@@ -20,6 +21,10 @@ alerts_in_ua.egg-info/SOURCES.txt
 alerts_in_ua.egg-info/dependency_links.txt
 alerts_in_ua.egg-info/requires.txt
 alerts_in_ua.egg-info/top_level.txt
+tests/__init__.py
+tests/helpers.py
 tests/test_alert.py
-tests/test_async_client.py
-tests/test_client.py
+tests/test_alerts.py
+tests/test_clients.py
+tests/test_live.py
+tests/test_threat.py

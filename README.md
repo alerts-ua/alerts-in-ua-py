@@ -47,6 +47,13 @@ active_alerts = alerts_client.get_active_alerts()
 print(active_alerts)
 ```
 
+Since 0.4.0 every alert also carries an alert level (`red` / `yellow`) and the threats currently open within it:
+```python
+for alert in active_alerts.get_yellow_alerts():
+    print(alert.location_title, [threat.threat_type for threat in alert.threats])
+```
+See [Alert levels and threats](#alert-levels-and-threats) for details.
+
 # Alerts 
 
 Alerts class is a collection of alerts and provides various methods to filter and access these alerts.
@@ -206,9 +213,6 @@ disclaimer = alerts.get_disclaimer()
 
 
 
-# License
-MIT 2023
-
 # Alert levels and threats
 
 Each `Alert` has an `alert_level` (`red` or `yellow`) and a list of `threats` — the individual threats
@@ -227,6 +231,12 @@ for alert in active_alerts:
 `Threat` fields: `threat_type`, `level` (`red` / `yellow`), `started_at` (datetime in Kyiv time),
 `source_message` (original wording from the source, may be `None`). Helpers: `is_red()`, `is_yellow()`.
 
+Threat types: `tactic_aircraft_activity`, `strategic_aircraft_activity`, `mig31k_departure`, `ballistic_missiles`,
+`cruise_missiles`, `unspecified_missiles`, `drones`, `guided_aerial_bombs`, `air_defense`, `unknown`.
+
+A threat's level is independent of its alert's level: a `yellow` alert can carry a `red` threat.
+Alerts from `get_alerts_history()` have `alert_level` but no `threats`, since threats only list what is open right now.
+
 # Running tests
 
 ```bash
@@ -238,3 +248,15 @@ Live tests against the API are skipped unless a token is provided:
 ```bash
 ALERTS_IN_UA_TOKEN=your_token python -m unittest tests.test_live
 ```
+
+# Changelog
+
+### 0.4.0
+- `Alert.alert_level` (`red` / `yellow`) with `is_red()` / `is_yellow()`.
+- `Alert.threats`: list of `Threat` objects (`threat_type`, `level`, `started_at`, `source_message`), plus `has_threats()` and `get_threats_by_type()`.
+- `Alerts.get_alerts_by_alert_level()`, `get_red_alerts()`, `get_yellow_alerts()`, `get_alerts_with_threat_type()`.
+- `Alert.location_title_en` and `Alert.country`.
+- Unit tests and opt-in live API tests.
+
+# License
+MIT 2023
